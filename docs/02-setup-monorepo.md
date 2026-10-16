@@ -131,7 +131,7 @@ DATABASE_URL=postgresql://sondohub:sondohub@localhost:5433/sondohub?schema=publi
 SESSION_COOKIE_NAME=sondohub_session
 COOKIE_SECURE=false
 
-# ── JWT (aula 05: gere com  pnpm --filter api exec node scripts/generate-jwt-key.ts) ──
+# ── JWT (aula 06: gere com  pnpm --filter api exec node scripts/generate-jwt-key.ts) ──
 JWT_KEY_ID=
 JWT_PRIVATE_KEY=
 
@@ -241,7 +241,7 @@ export default defineConfig(({ mode }) => {
 @import "tailwindcss";
 ```
 
-**`apps/hub/src/App.tsx`** é provisório; a aula 06 substitui:
+**`apps/hub/src/App.tsx`** é provisório; a aula 05 substitui:
 
 ```tsx
 export default function App() {
@@ -389,11 +389,19 @@ Os três seguem o mesmo molde: ESM, compilados com `tsc` puro para `dist/`, e `e
 }
 ```
 
-No **`packages/client/tsconfig.json`**, que tem componentes React, acrescente em `compilerOptions`:
+O **`packages/client/tsconfig.json`** tem componentes React, então ganha duas opções. Atenção: elas vão **dentro** de `compilerOptions`. Fora dele, o TypeScript simplesmente as ignora.
 
 ```json
-"jsx": "react-jsx",
-"lib": ["ES2023", "DOM"]
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM"]
+  },
+  "include": ["src"]
+}
 ```
 
 Crie um `src/index.ts` provisório em cada um, para o build já funcionar:
@@ -548,5 +556,8 @@ sondohub/
 | Erro de *splatting* no PowerShell | Argumento começando com `@` | Coloque o argumento entre aspas |
 | `ZodError` ao subir a API | Variável faltando no `.env` | A mensagem diz qual; compare com o `.env.example` |
 | `Cannot find module '@sondohub/contracts'` | Os packages ainda não foram compilados | `pnpm --filter "@sondohub/*" build` (o `pnpm dev` já faz isso) |
+| `@prisma/client did not initialize yet` (no seed ou no boot) | Clone novo: o client do Prisma ainda não foi gerado. O `migrate dev` gera; o `migrate deploy` não | `pnpm --filter api exec prisma generate` |
 
-➡️ Próximo: [03 — Banco de dados](03-aula-banco-de-dados.md)
+O banco (schema, migration e seed) está documentado no [apêndice](apendice-banco-de-dados.md).
+
+➡️ Próximo: [03 — Rota de login](03-aula-login.md)

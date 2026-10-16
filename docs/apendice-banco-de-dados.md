@@ -1,8 +1,7 @@
-# Aula 03 — Banco de dados: usuários, apps e níveis
+# Apêndice — Banco de dados: usuários, apps e níveis
 
-> **Objetivo:** modelar no Postgres **quem é o usuário**, **quais apps existem** e **qual nível cada usuário tem em cada app**, além das sessões de login. No fim da aula, o banco existe, tem dados de teste e você sabe consultar tudo.
->
-> **Pré-requisito:** guia [02](02-setup-monorepo.md) concluído, com `pnpm db:up` rodando.
+> ✅ **Você já fez esta parte:** a migration `init` e o seed estão no seu repositório.
+> Este apêndice fica como **referência** do modelo: o porquê de cada coluna, o SQL gerado e as consultas que as aulas usam.
 
 ---
 
@@ -120,12 +119,12 @@ model Session {
 | Decisão | Por quê |
 |---|---|
 | `id` UUID (`@db.Uuid`) | Não é sequencial, então não revela quantos usuários existem nem é adivinhável (`/users/2`, `/users/3`…). O tipo nativo ocupa 16 bytes. |
-| `email` único, sempre minúsculo | O zod normaliza na entrada (`trim` + `toLowerCase`, aula 04). Assim `Ana@X.com` e `ana@x.com` são o mesmo usuário. |
+| `email` único, sempre minúsculo | O zod normaliza na entrada (`trim` + `toLowerCase`, aula 08). Assim `Ana@X.com` e `ana@x.com` são o mesmo usuário. |
 | `passwordHash` opcional | Um usuário convidado ainda não criou senha (Fases 2 e 4). Login com hash `null` sempre falha. |
 | `isActive` em vez de apagar | Desativar é reversível e mantém o histórico (auditoria, migração). |
-| `failedLoginCount` + `lockedUntil` | Bloqueio temporário contra força bruta (aula 04). |
+| `failedLoginCount` + `lockedUntil` | Bloqueio temporário contra força bruta (aula 08). |
 | `slug` | Vira o `aud` do token: um identificador estável e legível (`demo`, `gemeo`). |
-| `origin` único | É assim que o hub descobre **qual app** está pedindo token (aula 05). |
+| `origin` único | É assim que o hub descobre **qual app** está pedindo token (aula 06). |
 | `levels` em JSON | Os rótulos dos níveis de cada app (`[{level: 1, label: "Leitura"}]`). Uma tabela própria seria excesso para uma lista curta editada pelo admin. |
 | PK composta `(user_id, application_id)` | O **próprio banco** garante **um nível por usuário por app**, sem precisar de código para isso. |
 | `onDelete: Cascade` | Apagar um usuário ou app remove junto os acessos e sessões, sem deixar órfãos. |
@@ -347,7 +346,7 @@ prisma.userAppAccess.findMany({
 });
 ```
 
-Repare: **nenhuma consulta pede `passwordHash`**. Na aula 04 isso vira regra, com um `select` seguro centralizado no repositório.
+Repare: **nenhuma consulta pede `passwordHash`**. Isso já é regra no seu `UsersRepository`: o `safeUserSelect` é o único formato de usuário que sai dele.
 
 ---
 
@@ -455,4 +454,4 @@ model AuditLog {
 }
 ```
 
-➡️ Próximo: [04 — API: login e sessão](04-aula-api-login-e-sessao.md)
+⬅️ Voltar para a [aula 03 — Login](03-aula-login.md)

@@ -73,8 +73,8 @@ App (gemeo.sondotecnica.com.br)                          Hub (hub.sondotecnica.c
           ◀─ 401  redirect hub/login?returnTo=<url> → login → volta
           ◀─ 403  tela "sem acesso" + link para a central
 2. backend do app recebe o Bearer → valida com a chave pública (em cache) ─▶ GET /api/.well-known/jwks.json
-3. ▦ ── GET /api/sso/apps ─▶ apps liberados → abre outro app → ele repete o passo 1 em silêncio
-4. Sair ── POST /api/sso/logout ─▶ sessão revogada → os outros apps param de renovar (em até 10 min)
+3. ▦ ── GET /api/me/apps ─▶ apps liberados → abre outro app → ele repete o passo 1 em silêncio
+4. Sair ── POST /api/auth/logout ─▶ sessão revogada → os outros apps param de renovar (em até 10 min)
 ```
 
 **Como o SDK se comporta:**
@@ -104,7 +104,7 @@ As dependências só apontam para baixo. SOLID na prática:
 - **S:** `PasswordService` só faz hash e verificação, `TokenService` só assina e publica a chave, e `SessionsService` só cria, valida e revoga sessões.
 - **O:** um app novo é um dado no registro, não código novo.
 - **D:** o Nest injeta as dependências e, nos testes, você troca por fakes. **Não há interface "por via das dúvidas"**: ela só aparece quando existir uma 2ª implementação real.
-- **I:** o SDK expõe só o essencial (`getAccessToken`, `getApps`, `logout`, `subscribe`).
+- **I:** o SDK expõe só o essencial: `getSession`, `getAccessToken`, `getApps` e `logout`.
 
 **Atenção a quatro limites:**
 
@@ -150,12 +150,9 @@ audit_logs       (Fase 3) id, actor_id, action, target_id, metadata json, ip, cr
   - `POST /api/auth/login`
   - `POST /api/auth/forgot-password` e `POST /api/auth/set-password` (Fase 2)
   - `GET /api/.well-known/jwks.json`
-- **Para os apps** (com CORS liberado só para os origins cadastrados):
-  - `POST /api/sso/token`
-  - `GET /api/sso/apps`
-  - `POST /api/sso/logout`
-- **Só o hub:** `/api/me/*` e `/api/admin/*`.
-- **CSRF:** toda requisição que altera estado exige um `Origin` conhecido.
+- **Com sessão (cookie):** `GET /api/me`, `GET /api/me/apps` (apps com o nível), `POST /api/auth/logout` e `POST /api/sso/token`.
+- **Que os apps (outros origins) podem chamar:** só `/api/sso/token`, `/api/me/apps` e `/api/auth/logout`. O resto é só do próprio hub, incluindo `/api/admin/*` na Fase 3.
+- **CSRF:** toda requisição que altera estado exige um `Origin` conhecido (aula 08).
 
 ### Portas de desenvolvimento
 
@@ -173,14 +170,15 @@ As portas 3000 e 5173 já estavam em uso nesta máquina. O SondoHub usa portas p
 
 ## 7. Roteiro de fases
 
-**Fase 1: fundação e fatia vertical do SSO** (aulas 03 a 07)
+**Fase 1: primeiro funcionar, uma rota por vez; depois proteger** (aulas 03 a 08)
 
-1. Monorepo, Docker e `.env` compartilhado (guia `02`).
-2. Banco: `users`, `applications`, `user_app_access`, `sessions` e o seed (aula `03`).
-3. API: login, sessão, guards e proteção contra força bruta (aula `04`).
-4. API: token por app, JWKS e CORS do SSO (aula `05`).
-5. Hub: login com `returnTo` seguro e o launcher (aula `06`).
-6. Packages `client` e `server` (SDK, widget e validação do token), mais o app demo integrado (aula `07`).
+1. Monorepo, Docker e `.env` compartilhado (guia `02`). O banco está no [apêndice](apendice-banco-de-dados.md).
+2. `POST /api/auth/login`: sessão crua no cookie + dados do usuário (aula `03`).
+3. `GET /api/me`, `GET /api/me/apps` (com o nível) e `POST /api/auth/logout` (aula `04`).
+4. Hub: tela de login e launcher (aula `05`).
+5. `POST /api/sso/token` (JWT por app), JWKS e CORS simples (aula `06`).
+6. Um app consumindo o login do hub: SDK, widget, middleware, `returnTo` e o roteiro para apps reais (aula `07`).
+7. Fechando as portas: guard global, validação, rate limit, bloqueio, CSRF, CORS dinâmico e testes (aula `08`).
 
 **Fase 2: minha conta.** Email (nodemailer/Mailpit), esqueci e definir senha, perfil (nome e foto), trocar senha, trocar email com confirmação e sessões ativas.
 

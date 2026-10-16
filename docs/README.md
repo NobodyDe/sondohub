@@ -4,26 +4,29 @@ O SondoHub é o hub de acesso unificado da Sondotecnica: **um login, uma conta e
 
 Esta pasta é um **guia de implementação em formato de curso**. Você escreve o código; cada aula explica o porquê, mostra o código de referência e termina com um checkpoint para conferir.
 
+**O método:** primeiro **funcionar**, uma rota de cada vez, do jeito mais simples. Cada aula termina com a rota testada. As proteções entram todas juntas na aula 08, quando tudo já estiver de pé, e cada aula lista o que ficou "cru" de propósito.
+
 ## Ordem de leitura
 
 | # | Documento | Você sai com |
 |---|---|---|
-| 01 | [Arquitetura](01-arquitetura.md) | As decisões e o porquê de cada uma (Nest, tokens, padrão de projeto, roteiro) |
-| 02 | [Setup do monorepo](02-setup-monorepo.md) | Monorepo com hub, API, demo e packages, `.env` compartilhado e portas sem conflito |
-| 03 | [Banco de dados](03-aula-banco-de-dados.md) | Postgres com usuários, apps, **níveis por app** e sessões, mais o seed |
-| 04 | [API: login e sessão](04-aula-api-login-e-sessao.md) | Login, cookie de sessão, guards globais, proteção contra força bruta e CSRF |
-| 05 | [SSO: tokens e JWKS](05-aula-sso-e-tokens.md) | Access token por app (RS256), JWKS público e CORS do SSO |
-| 06 | [Hub: login e launcher](06-aula-hub-front.md) | Tela de login com `returnTo` seguro e a central de apps |
-| 07 | [SDK, widget e demo](07-aula-sdk-widget-e-demo.md) | `@sondohub/client` (SDK + ▦), `@sondohub/server` e o SSO completo no navegador |
+| 01 | [Arquitetura](01-arquitetura.md) | As decisões e o porquê de cada uma |
+| 02 | [Setup do monorepo](02-setup-monorepo.md) | Monorepo, `.env` compartilhado e portas sem conflito ✅ *feito* |
+| — | [Apêndice: banco de dados](apendice-banco-de-dados.md) | Usuários, apps, níveis por app e sessões ✅ *feito* |
+| 03 | [Rota de login](03-aula-login.md) | `POST /api/auth/login`: sessão no cookie + dados do usuário |
+| 04 | [Quem sou eu, meus apps e sair](04-aula-sessao-e-apps.md) | `GET /api/me`, `GET /api/me/apps` (com o **nível**) e `POST /api/auth/logout` |
+| 05 | [Hub: login e launcher](05-aula-hub-front.md) | A central consumindo essas rotas no navegador |
+| 06 | [Token para os apps](06-aula-token-para-apps.md) | `POST /api/sso/token` (JWT por app, com o nível) + JWKS + CORS simples |
+| 07 | [App consumindo o hub](07-aula-app-consumindo-o-hub.md) | SDK, widget ▦, middleware do backend, `returnTo` e o roteiro para **apps reais** |
+| 08 | [Fechando as portas](08-aula-seguranca.md) | Guard global, validação, rate limit, bloqueio, CSRF, CORS dinâmico e testes |
 
 ## Formato de cada aula
 
 - 🎯 **Objetivo:** o que funciona no fim.
-- 🧠 **Conceito:** o problema e por que a solução é essa (e não as alternativas).
-- 🛠️ **Passos:** o código de referência, com o motivo de cada parte.
+- 🧠 **Conceito:** o problema e por que a solução é essa.
+- 🛠️ **Passos:** o código de referência e o motivo de cada parte. Teste logo depois de cada rota.
 - ✅ **Checkpoint:** como provar que funcionou.
-- ⚠️ **Atenção:** limites e o que fica para depois, de propósito.
-- 🏋️ **Exercícios:** com respostas escondidas.
+- ⏳ **O que ficou para depois:** o que está cru de propósito e em que aula se resolve.
 
 ## Referência rápida
 
@@ -44,4 +47,8 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | `pnpm db:studio` | Abre o Prisma Studio |
 | `pnpm test` | Roda os testes de todos os apps e packages |
 
-> Todo o código de referência destas aulas foi compilado e testado (build, testes unitários e checagens de segurança via HTTP) em 15/10/2026, com Node 24, NestJS 12, Prisma 6.19, React 19, Vite 8 e Tailwind 4.
+> **Como estas aulas foram validadas (16/10/2026):** o código de referência foi aplicado, aula por aula, num clone do seu repositório (commit `aca59df`).
+> - Cada etapa compilou, passou no lint e foi testada contra um Postgres real.
+> - O fluxo foi conferido no navegador: login, launcher, SSO no demo, níveis, logout e "sem acesso".
+> - Um app Vite externo foi plugado via `link:`.
+> - Os ataques da aula 08 falharam como deveriam.
