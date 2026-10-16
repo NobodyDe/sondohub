@@ -23,11 +23,28 @@ export class AppsRepository {
     });
   }
 
-  listForUser(userId: string): Promise<LauncherApp[]> {
-    return this.prisma.application.findMany({
-      where: { isActive: true, access: { some: { userId } } },
-      select: { slug: true, name: true, iconUrl: true, url: true },
-      orderBy: { name: 'asc' },
+  async listForUser(userId: string): Promise<LauncherApp[]> {
+    const accesses = await this.prisma.userAppAccess.findMany({
+      where: { userId, application: { isActive: true } },
+      select: {
+        level: true,
+        application: {
+          select: { slug: true, name: true, iconUrl: true, url: true },
+        },
+      },
+      orderBy: { application: { name: 'asc' } },
     });
+    return accesses.map(
+      ({
+        level,
+        application,
+      }: {
+        level: number;
+        application: LauncherApp;
+      }) => ({
+        ...application,
+        level,
+      }),
+    );
   }
 }

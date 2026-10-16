@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 
 /** Campos que podem sair do repositório. password_hash nunca entra aqui. */
 export const safeUserSelect = {
