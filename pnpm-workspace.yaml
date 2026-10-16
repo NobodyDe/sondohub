@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# O pnpm não roda scripts de instalação de dependências sem autorização (proteção de supply-chain).
+# Estes precisam: o Prisma baixa os engines e o argon2 instala o binário nativo.
+allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  prisma: true
+  argon2: true

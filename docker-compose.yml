@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: sondohub
+      POSTGRES_PASSWORD: sondohub
+      POSTGRES_DB: sondohub
+    ports:
+      - "${POSTGRES_PORT}:5432" # vem do .env: 5433 no seu PC, 5432 dentro do container
+    volumes:
+      - pgdata:/var/lib/postgresql # no Postgres 18 o volume é a pasta-pai (mudou em relação ao 17)
+
+volumes:
+  pgdata:
