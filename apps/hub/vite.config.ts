@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
   return {
     envDir,
     plugins: [react(), tailwindcss()],
+    resolve: { alias: { "@": resolve(import.meta.dirname, "src") } },
     server: {
       port: Number(env.HUB_PORT),
       strictPort: true,
