@@ -6,7 +6,10 @@ export const emailSchema = z.string().trim().toLowerCase().pipe(z.email());
 
 export const loginSchema = z.object({
   email: emailSchema,
-  password: z.string().min(1).max(128),
+  password: z
+    .string()
+    .min(8, "A senha deve ter no minimo 8 caracteres.")
+    .max(128, "A senha pode ter no máximo 128 caracteres."),
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
