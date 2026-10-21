@@ -1,6 +1,7 @@
 import type { HubProfile, LauncherApp } from "@sondohub/contracts";
-import { CircleHelp, LayoutGrid, Settings, Star, type LucideIcon } from "lucide-react";
+import { CircleHelp, LayoutGrid, Settings, Star, Users, type LucideIcon } from "lucide-react";
 import { Link, NavLink } from "react-router";
+import UserAvatar from "../../../components/UserAvatar.tsx";
 import { cn } from "../../../lib/utils.ts";
 
 type NavItem = { to: string; label: string; icon: LucideIcon };
@@ -11,6 +12,8 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/ajuda", label: "Ajuda", icon: CircleHelp },
 ];
 
+const ADMIN_ITEMS: NavItem[] = [{ to: "/admin/usuarios", label: "Usuários", icon: Users }];
+
 type SidebarProps = {
   profile: HubProfile;
   recentApps?: LauncherApp[];
@@ -20,7 +23,8 @@ export default function Sidebar({ profile, recentApps = [] }: SidebarProps) {
   return (
     <aside className="flex w-full shrink-0 flex-col gap-7 border-sidebar-border bg-sidebar px-4 py-5 text-sidebar-foreground md:sticky md:top-0 md:h-svh md:w-60 md:border-r">
       <Brand />
-      <MainNav />
+      <NavSection title="Principal" items={NAV_ITEMS} />
+      {profile.role === "MASTER" && <NavSection title="Administração" items={ADMIN_ITEMS} showTitle />}
       {recentApps.length > 0 && <RecentApps apps={recentApps} />}
       <UserCard profile={profile} />
     </aside>
@@ -38,14 +42,23 @@ function Brand() {
   );
 }
 
-function MainNav() {
+type NavSectionProps = {
+  title: string;
+  items: NavItem[];
+  showTitle?: boolean;
+};
+
+function NavSection({ title, items, showTitle = false }: NavSectionProps) {
   return (
-    <nav aria-label="Principal" className="flex flex-col gap-1">
-      {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+    <nav aria-label={title} className="flex flex-col gap-1">
+      {showTitle && (
+        <span className="px-3 pb-1.5 text-xs font-semibold tracking-wider text-ink-label uppercase">{title}</span>
+      )}
+      {items.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}
-          end
+          end={to === "/"}
           className={({ isActive }) =>
             cn(
               "flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[15px] text-ink-nav no-underline transition-colors hover:bg-accent hover:text-foreground",
@@ -82,7 +95,7 @@ function RecentApps({ apps }: { apps: LauncherApp[] }) {
 function UserCard({ profile }: { profile: HubProfile }) {
   return (
     <div className="mt-auto flex items-center gap-3 rounded-xl bg-card p-3">
-      <Avatar name={profile.name} url={profile.avatarUrl} />
+      <UserAvatar name={profile.name} url={profile.avatarUrl} />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-sm font-semibold text-foreground">{profile.name}</span>
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -101,20 +114,3 @@ function UserCard({ profile }: { profile: HubProfile }) {
   );
 }
 
-function Avatar({ name, url }: { name: string; url: string | null }) {
-  if (url) return <img src={url} alt="" className="size-10 shrink-0 rounded-full object-cover" />;
-
-  return (
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-g-violet text-sm font-bold text-white">
-      {initials(name)}
-    </div>
-  );
-}
-
-/** "Henrique dos Santos" → "HS" (primeira letra do primeiro e do último nome). */
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase() || "?";
-}

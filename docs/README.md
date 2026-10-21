@@ -18,7 +18,9 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | 05 | [Hub: login e launcher](05-aula-hub-front.md) | A central consumindo essas rotas no navegador |
 | 06 | [Token para os apps](06-aula-token-para-apps.md) | `POST /api/sso/token` (JWT por app, com o nível) + JWKS + CORS simples |
 | 07 | [App consumindo o hub](07-aula-app-consumindo-o-hub.md) | SDK, widget ▦, middleware do backend, `returnTo` e o roteiro para **apps reais** |
+| 07b | [Plugando o Gêmeo Digital](07b-aula-plugando-o-gemeo.md) | O primeiro app real no hub, arquivo por arquivo, a receita para os outros apps e os bloqueios de produção |
 | 08 | [Fechando as portas](08-aula-seguranca.md) | Guard global, validação, rate limit, bloqueio, CSRF, CORS dinâmico e testes |
+| 09 | [Banco de dados da empresa](09-banco-da-empresa.md) | Cargos `MASTER`/`ADMIN`/`USER` no lugar do `is_admin` e as tabelas criadas no PostgreSQL da empresa, com usuário próprio e SSL |
 
 ## Formato de cada aula
 
@@ -42,7 +44,8 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 |---|---|
 | `pnpm dev` | Compila os packages e sobe tudo em paralelo |
 | `pnpm db:up` | Sobe o Postgres (Docker) |
-| `pnpm db:migrate` | Aplica as migrations |
+| `pnpm db:migrate` | Cria e aplica migrations (só no Docker) |
+| `pnpm db:deploy` | Aplica as migrations pendentes no banco da empresa (guia 09) |
 | `pnpm db:seed` | Cria o admin, o leitor e o app demo |
 | `pnpm db:studio` | Abre o Prisma Studio |
 | `pnpm test` | Roda os testes de todos os apps e packages |

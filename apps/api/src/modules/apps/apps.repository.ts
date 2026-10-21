@@ -47,4 +47,11 @@ export class AppsRepository {
       }),
     );
   }
+  async listOrigins(): Promise<string[]> {
+    const apps = await this.prisma.application.findMany({
+      where: { isActive: true },
+      select: { origin: true },
+    });
+    return apps.map((app) => app.origin);
+  }
 }

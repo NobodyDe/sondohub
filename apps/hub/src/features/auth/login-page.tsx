@@ -1,7 +1,50 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "./login-form.tsx";
+import { safeReturnTo } from "./safe-return-to.ts";
+import { ApiError, hubApi } from "@/lib/api.ts";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
+
+async function continueTo(returnTo: string | null) {
+  const target = safeReturnTo(returnTo, await hubApi.myApps());
+  location.assign(target ?? "/");
+}
 
 export function LoginPage() {
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Já tem sessão? Não pede a senha de novo: segue direto para onde ia.
+  useEffect(() => {
+    hubApi.me().then(
+      () => continueTo(returnTo),
+      () => {},
+    );
+  }, [returnTo]);
+
+  async function handleSubmit(event: Form<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+
+    setSubmitting(true);
+    setError("");
+    try {
+      await hubApi.login({
+        email: String(form.get("email")),
+        password: String(form.get("password")),
+      });
+      await continueTo(returnTo);
+    } catch (err) {
+      setError(
+        err instanceof ApiError && err.status === 401
+          ? "Email ou senha inválidos."
+          : "Não foi possível entrar. Tente de novo.",
+      );
+      setSubmitting(false);
+    }
+  }
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">

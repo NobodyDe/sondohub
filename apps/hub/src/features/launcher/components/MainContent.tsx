@@ -48,7 +48,18 @@ function AppCard({ app, onToggleFavorite }: AppCardProps) {
   return (
     <li className="relative flex min-h-44 flex-col gap-4 rounded-[14px] border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-line-hover">
       <div className="flex items-center gap-3.5">
-        <img src={app.iconUrl} alt="" className="size-13 rounded-[14px]" />
+        {app.icon ? (
+          <span
+            className={cn(
+              "flex size-13 shrink-0 items-center justify-center rounded-[14px] text-white",
+              app.gradient,
+            )}
+          >
+            <app.icon className="size-6" aria-hidden />
+          </span>
+        ) : (
+          <img src={app.iconUrl} alt="" className="size-13 rounded-[14px]" />
+        )}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {/* O ::after estica o link pelo card inteiro; a estrela fica por cima (z-10). */}
           <a
