@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "rootDir": "src", "outDir": "dist" },
-  "include": ["src"],
-  "jsx": "react-jsx",
-  "lib": ["ES2023", "DOM"]
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "lib": ["ES2023", "DOM"]
+  },
+  "include": ["src"]
 }

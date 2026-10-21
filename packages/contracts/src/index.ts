@@ -37,11 +37,14 @@ export type TokenResponse = {
   user: SondoUser;
 };
 
+/** Cargo do usuário no hub. Espelha o enum UserRole do Prisma. */
+export type UserRole = "MASTER" | "ADMIN" | "USER";
+
 /** Resposta de GET /api/me (perfil no hub). */
 export type HubProfile = {
   id: string;
   name: string;
   email: string;
   avatarUrl: string | null;
-  isAdmin: boolean;
+  role: UserRole;
 };

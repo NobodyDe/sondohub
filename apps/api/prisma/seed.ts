@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import argon2 from 'argon2';
+import type { UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -10,11 +11,11 @@ const demoUrl = `http://localhost:${process.env.DEMO_PORT}`;
 const passwordHash = await argon2.hash(password);
 
 // upsert = "cria se não existir": o seed pode rodar várias vezes sem duplicar nada.
-function upsertUser(email: string, name: string, isAdmin: boolean) {
+function upsertUser(email: string, name: string, role: UserRole) {
   return prisma.user.upsert({
     where: { email },
     update: {},
-    create: { email, name, isAdmin, passwordHash },
+    create: { email, name, role, passwordHash },
   });
 }
 
@@ -46,9 +47,9 @@ const demo = await prisma.application.upsert({
 const admin = await upsertUser(
   process.env.SEED_ADMIN_EMAIL ?? 'admin@sondotecnica.com.br',
   'Administrador',
-  true,
+  'MASTER',
 );
-const reader = await upsertUser('leitor@sondotecnica.com.br', 'Leitor', false);
+const reader = await upsertUser('leitor@sondotecnica.com.br', 'Leitor', 'USER');
 
 await grantAccess(admin.id, demo.id, 3);
 await grantAccess(reader.id, demo.id, 1);

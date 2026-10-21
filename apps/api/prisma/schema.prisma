@@ -19,7 +19,7 @@ model User {
   name             String
   passwordHash     String?   @map("password_hash")
   avatarUrl        String?   @map("avatar_url")
-  isAdmin          Boolean   @default(false) @map("is_admin")
+  role             UserRole  @default(USER)   
   isActive         Boolean   @default(true) @map("is_active")
   failedLoginCount Int       @default(0) @map("failed_login_count")
   lockedUntil      DateTime? @map("locked_until")
@@ -77,4 +77,10 @@ model Session {
 
   @@index([userId])
   @@map("sessions")
+}
+
+enum UserRole {
+  MASTER
+  ADMIN
+  USER
 }

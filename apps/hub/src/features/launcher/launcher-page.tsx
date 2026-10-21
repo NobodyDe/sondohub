@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Navigate } from "react-router";
+import { PREVIEW_APPS } from "../../constants/data.tsx";
 import { ApiError, hubApi } from "../../lib/api.ts";
 import Banner from "./components/Banner.tsx";
 import Header from "./components/Header.tsx";
@@ -22,6 +23,10 @@ const APP_DETAILS: Record<string, AppDetails> = {
     description: "Aplicativo teste para o sondohub",
     category: "Engenharia",
   },
+  gemeo: {
+    description: "Plataforma de monitoramento inteligente",
+    category: "BIM",
+  },
 };
 
 const DEFAULT_DETAILS: AppDetails = { description: "", category: "Outros" };
@@ -30,6 +35,19 @@ function toAppViews(apps: LauncherApp[], favorites: string[]): AppView[] {
   return apps.map((app) => ({
     ...app,
     ...(APP_DETAILS[app.slug] ?? DEFAULT_DETAILS),
+    isFavorite: favorites.includes(app.slug),
+  }));
+}
+
+function toPreviewViews(favorites: string[]): AppView[] {
+  return PREVIEW_APPS.filter((app) => app.is_active).map((app) => ({
+    slug: app.slug,
+    name: app.name,
+    url: app.url,
+    iconUrl: "",
+    icon: app.icon,
+    gradient: app.gradient,
+    ...DEFAULT_DETAILS,
     isFavorite: favorites.includes(app.slug),
   }));
 }
@@ -62,7 +80,9 @@ export function LauncherPage() {
     );
   }
 
-  const appViews = apps.data ? toAppViews(apps.data, favorites) : [];
+  const appViews = apps.data
+    ? [...toAppViews(apps.data, favorites), ...toPreviewViews(favorites)]
+    : [];
 
   return (
     <div className="flex min-h-svh flex-col md:flex-row">
