@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AdminUser } from '@sondohub/contracts';
 
 /** Campos que podem sair do repositório. password_hash nunca entra aqui. */
 export const safeUserSelect = {
@@ -40,5 +41,26 @@ export class UsersRepository {
       where: { id },
       data: { failedLoginCount, lockedUntil },
     });
+  }
+
+  async listAll(): Promise<AdminUser[]> {
+    const users = await this.prisma.user.findMany({
+      select: {
+        ...safeUserSelect,
+        access: {
+          select: {
+            level: true,
+            application: { select: { slug: true, name: true } },
+          },
+          orderBy: { application: { name: 'asc' } },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    return users.map(({ access, ...user }) => ({
+      ...user,
+      apps: access.map(({ level, application }) => ({ ...application, level })),
+    }));
   }
 }

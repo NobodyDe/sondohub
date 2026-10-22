@@ -48,3 +48,14 @@ export type HubProfile = {
   avatarUrl: string | null;
   role: UserRole;
 };
+
+export type AdminUserApp = {
+  slug: string;
+  name: string;
+  level: number;
+};
+
+export type AdminUser = HubProfile & {
+  isActive: boolean;
+  apps: AdminUserApp[];
+};

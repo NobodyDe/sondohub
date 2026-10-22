@@ -11,7 +11,9 @@
     "db:down": "docker compose down",
     "db:migrate": "pnpm --filter api exec prisma migrate dev",
     "db:seed": "pnpm --filter api exec prisma db seed",
-    "db:studio": "pnpm --filter api exec prisma studio"
+    "db:studio": "pnpm --filter api exec prisma studio",
+    "db:deploy": "pnpm --filter api exec prisma migrate deploy",
+    "db:status": "pnpm --filter api exec prisma migrate status"
   },
   "packageManager": "pnpm@12.11.2",
   "devEngines": {
