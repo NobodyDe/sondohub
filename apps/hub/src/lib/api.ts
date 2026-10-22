@@ -1,4 +1,9 @@
-import type { HubProfile, LauncherApp, LoginInput } from "@sondohub/contracts";
+import type {
+  AdminUser,
+  HubProfile,
+  LauncherApp,
+  LoginInput,
+} from "@sondohub/contracts";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -28,4 +33,5 @@ export const hubApi = {
   logout: () => request<void>("/auth/logout", { method: "POST" }),
   me: () => request<HubProfile>("/me"),
   myApps: () => request<LauncherApp[]>("/me/apps"),
+  adminUsers: () => request<AdminUser[]>("/admin/users"),
 };

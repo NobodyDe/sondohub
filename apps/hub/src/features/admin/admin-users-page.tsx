@@ -7,19 +7,25 @@ import UsersToolbar from "./components/UsersToolbar.tsx";
 import { FAKE_USERS } from "./fake-users.ts";
 import { filterUsers, type UserFilterId } from "./user-filters.ts";
 import type { AdminUser } from "./types.ts";
+import { hubApi } from "@/lib/api.ts";
+import { useQuery } from "@tanstack/react-query";
 
 export function AdminUsersPage() {
   const [filter, setFilter] = useState<UserFilterId>("all");
   const [query, setQuery] = useState("");
-  const users = FAKE_USERS; // Troca por useQuery(GET /api/admin/users) na integração.
-
+  const { data: users = [] } = useQuery({
+    queryKey: ["admin", "users"],
+    queryFn: hubApi.adminUsers,
+  });
   return (
     <AdminShell>
       <div className="mx-auto flex max-w-[1240px] flex-col gap-7">
         <header className="flex flex-wrap items-end justify-between gap-5">
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-extrabold tracking-tight">Usuários</h1>
-            <p className="text-[15px] text-muted-foreground">{summarize(users)}</p>
+            <p className="text-[15px] text-muted-foreground">
+              {summarize(users)}
+            </p>
           </div>
           <Link
             to="/admin/usuarios/novo"
@@ -30,7 +36,12 @@ export function AdminUsersPage() {
           </Link>
         </header>
 
-        <UsersToolbar filter={filter} onFilterChange={setFilter} query={query} onQueryChange={setQuery} />
+        <UsersToolbar
+          filter={filter}
+          onFilterChange={setFilter}
+          query={query}
+          onQueryChange={setQuery}
+        />
         <UsersTable users={filterUsers(users, filter, query)} />
       </div>
     </AdminShell>

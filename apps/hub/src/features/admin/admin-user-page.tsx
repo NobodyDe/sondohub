@@ -14,7 +14,9 @@ export function AdminUserPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   // Cópia local para editar. Na integração, cada mudança vira uma chamada à API (useMutation).
-  const [user, setUser] = useState<AdminUser | undefined>(() => FAKE_USERS.find((fake) => fake.id === id));
+  const [user, setUser] = useState<AdminUser | undefined>(() =>
+    FAKE_USERS.find((fake) => fake.id === id),
+  );
   const apps = FAKE_APPS; // Troca por useQuery(GET /api/admin/apps) na integração.
 
   if (!user)
@@ -48,7 +50,11 @@ export function AdminUserPage() {
       <div className="mx-auto flex max-w-[980px] flex-col gap-8">
         <UserProfileHeader user={user} onActiveChange={changeActive} />
         <RolePicker value={user.role} onChange={changeRole} />
-        <AppAccessList apps={apps} grants={user.apps} onLevelChange={changeAppLevel} />
+        <AppAccessList
+          apps={apps}
+          grants={user.apps}
+          onLevelChange={changeAppLevel}
+        />
         <RemoveUserSection onRemove={remove} />
       </div>
     </AdminShell>

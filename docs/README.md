@@ -20,7 +20,7 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | 07 | [App consumindo o hub](07-aula-app-consumindo-o-hub.md) | SDK, widget ▦, middleware do backend, `returnTo` e o roteiro para **apps reais** |
 | 07b | [Plugando o Gêmeo Digital](07b-aula-plugando-o-gemeo.md) | O primeiro app real no hub, arquivo por arquivo, a receita para os outros apps e os bloqueios de produção |
 | 08 | [Fechando as portas](08-aula-seguranca.md) | Guard global, validação, rate limit, bloqueio, CSRF, CORS dinâmico e testes |
-| 09 | [Banco de dados da empresa](09-banco-da-empresa.md) | Cargos `MASTER`/`ADMIN`/`USER` no lugar do `is_admin` e as tabelas criadas no PostgreSQL da empresa, com usuário próprio e SSL |
+| 09 | [Banco da empresa (Azure)](09-banco-da-empresa.md) | As tabelas criadas no schema `sondohub` do PostgreSQL da empresa com `migrate deploy`, o primeiro Master e os apps reais |
 
 ## Formato de cada aula
 
