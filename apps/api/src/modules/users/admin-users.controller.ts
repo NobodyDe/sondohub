@@ -7,12 +7,15 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Put,
   UseGuards,
 } from '@nestjs/common';
 import {
   type AppAccessInput,
   appAccessSchema,
+  type CreateUserInput,
+  createUserSchema,
   type UpdateUserInput,
   updateUserSchema,
 } from '@sondohub/contracts';
@@ -36,6 +39,14 @@ export class AdminUsersController {
   @Get()
   list() {
     return this.users.listAll();
+  }
+
+  /** Cria o usuário com cargo e apps. Sem senha: ela é definida pelo convite. */
+  @Post()
+  create(
+    @Body(new ZodValidationPipe(createUserSchema)) body: CreateUserInput,
+  ) {
+    return this.admin.create(body);
   }
 
   /** Um usuário, com todos os apps e o acesso dele em cada um. */
