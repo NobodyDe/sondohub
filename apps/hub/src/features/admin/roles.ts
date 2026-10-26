@@ -18,8 +18,8 @@ export const ROLES: Record<UserRole, RoleInfo> = {
     description: "Controle total. Cria e remove usuários, define cargos e libera aplicativos.",
     canAccessPanel: true,
     icon: Crown,
-    iconClassName: "bg-[linear-gradient(135deg,#8b5cf6,#ec4899)]",
-    badgeClassName: "bg-[#3a1f4a] text-[#f0c2ff]",
+    iconClassName: "bg-g-deep",
+    badgeClassName: "bg-primary text-primary-foreground",
   },
   ADMIN: {
     label: "Administrador",
@@ -27,8 +27,8 @@ export const ROLES: Record<UserRole, RoleInfo> = {
     description: "Gerencia os aplicativos que tem liberados, com acesso às configurações de cada um.",
     canAccessPanel: false,
     icon: ShieldCheck,
-    iconClassName: "bg-g-blue",
-    badgeClassName: "bg-[#1e2b55] text-[#b9ccff]",
+    iconClassName: "bg-g-royal",
+    badgeClassName: "bg-primary-soft text-link",
   },
   USER: {
     label: "Usuário",
@@ -36,7 +36,7 @@ export const ROLES: Record<UserRole, RoleInfo> = {
     description: "Usa os aplicativos liberados, com a permissão definida em cada um.",
     canAccessPanel: false,
     icon: UserRound,
-    iconClassName: "bg-g-teal",
+    iconClassName: "bg-g-azure",
     badgeClassName: "bg-muted text-ink-body",
   },
 };

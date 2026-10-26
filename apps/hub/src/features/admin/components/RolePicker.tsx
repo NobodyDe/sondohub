@@ -41,7 +41,7 @@ function RoleOption({ role, checked, onSelect }: RoleOptionProps) {
     <label
       className={cn(
         "flex cursor-pointer flex-col gap-3.5 rounded-[14px] border-[1.5px] border-border bg-section p-[18px] transition-colors hover:border-line-hover has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
-        checked && "border-ring bg-[#23254a] hover:border-ring",
+        checked && "border-primary bg-primary-soft hover:border-primary",
       )}
     >
       <span className="flex items-center gap-3">
@@ -54,7 +54,7 @@ function RoleOption({ role, checked, onSelect }: RoleOptionProps) {
           aria-hidden
           className={cn(
             "size-5 shrink-0 rounded-full border-2 border-line-hover transition-all",
-            checked && "border-ring bg-ring shadow-[inset_0_0_0_4px_#23254a]",
+            checked && "border-primary bg-primary shadow-[inset_0_0_0_4px_var(--primary-soft)]",
           )}
         />
       </span>
@@ -62,7 +62,7 @@ function RoleOption({ role, checked, onSelect }: RoleOptionProps) {
       <span
         className={cn(
           "flex items-center gap-1.5 text-xs font-semibold",
-          canAccessPanel ? "text-[#f0c2ff]" : "text-ink-placeholder",
+          canAccessPanel ? "text-link" : "text-ink-placeholder",
         )}
       >
         <LockKeyhole className="size-3.5" aria-hidden />

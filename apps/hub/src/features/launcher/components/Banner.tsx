@@ -9,7 +9,7 @@ export default function Banner({ userName }: BannerProps) {
   return (
     <section
       aria-labelledby="banner-title"
-      className="flex flex-wrap items-center gap-8 rounded-[28px] bg-g-hero px-6 py-10 md:px-12"
+      className="flex flex-wrap items-center gap-8 rounded-[28px] bg-g-hero px-6 py-10 text-white md:px-12"
     >
       <div className="flex flex-[1_1_380px] flex-col gap-3.5">
         <span className="flex items-center gap-2 self-start rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold tracking-wide">
@@ -26,7 +26,7 @@ export default function Banner({ userName }: BannerProps) {
 
       <nav aria-label="Atalhos" className="grid flex-[1_1_360px] grid-cols-2 gap-3.5">
         <QuickLink to="/favoritos" label="Ver meus favoritos" icon={Star} iconClassName="text-favorite" />
-        <QuickLink to="/conta" label="Editar minha conta" icon={UserRound} iconClassName="text-accent-mint" />
+        <QuickLink to="/conta" label="Editar minha conta" icon={UserRound} iconClassName="text-accent-sky" />
       </nav>
     </section>
   );

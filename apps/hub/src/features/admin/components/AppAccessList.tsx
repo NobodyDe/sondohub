@@ -3,7 +3,7 @@ import { cn } from "../../../lib/utils.ts";
 import { findLevel, lowestLevel } from "../user-access.ts";
 import type { AppGrant, CatalogApp } from "../types.ts";
 
-const APP_COLORS = ["bg-g-blue", "bg-g-green", "bg-g-violet", "bg-g-teal"];
+const APP_COLORS = ["bg-g-sky", "bg-g-deep", "bg-g-royal", "bg-g-azure"];
 
 type AppAccessListProps = {
   apps: CatalogApp[];
@@ -79,7 +79,7 @@ function AppAccessCard({ app, colorClassName, level, onLevelChange }: AppAccessC
             className={cn(
               "flex h-[34px] items-center justify-center rounded-lg text-[13px] font-semibold text-ink-body transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
               hasAccess ? "cursor-pointer hover:bg-secondary" : "cursor-not-allowed",
-              level === option.level && "bg-chip-active text-background hover:bg-chip-active",
+              level === option.level && "bg-primary text-primary-foreground hover:bg-primary",
             )}
           >
             <input

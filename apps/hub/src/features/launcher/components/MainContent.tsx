@@ -8,7 +8,11 @@ type MainContentProps = {
   onToggleFavorite: (slug: string) => void;
 };
 
-export default function MainContent({ apps, query, onToggleFavorite }: MainContentProps) {
+export default function MainContent({
+  apps,
+  query,
+  onToggleFavorite,
+}: MainContentProps) {
   if (apps.length === 0)
     return (
       <EmptyState
@@ -46,7 +50,7 @@ type AppCardProps = {
 
 function AppCard({ app, onToggleFavorite }: AppCardProps) {
   return (
-    <li className="relative flex min-h-44 flex-col gap-4 rounded-[14px] border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-line-hover">
+    <li className="relative flex min-h-44 flex-col gap-4 border border-border bg-sidebar p-5 transition hover:-translate-y-0.5 hover:border-line-hover">
       <div className="flex items-center gap-3.5">
         {app.icon ? (
           <span
@@ -68,13 +72,21 @@ function AppCard({ app, onToggleFavorite }: AppCardProps) {
           >
             {app.name}
           </a>
-          <span className="text-xs font-semibold text-muted-foreground">{app.category}</span>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {app.category}
+          </span>
         </div>
-        <FavoriteButton appName={app.name} isFavorite={app.isFavorite} onToggle={onToggleFavorite} />
+        <FavoriteButton
+          appName={app.name}
+          isFavorite={app.isFavorite}
+          onToggle={onToggleFavorite}
+        />
       </div>
 
       {app.description && (
-        <p className="text-sm leading-relaxed text-ink-body">{app.description}</p>
+        <p className="text-sm leading-relaxed text-ink-body">
+          {app.description}
+        </p>
       )}
 
       <span className="mt-auto flex items-center gap-1.5 text-[13px] font-semibold text-link">
@@ -91,13 +103,19 @@ type FavoriteButtonProps = {
   onToggle: () => void;
 };
 
-function FavoriteButton({ appName, isFavorite, onToggle }: FavoriteButtonProps) {
+function FavoriteButton({
+  appName,
+  isFavorite,
+  onToggle,
+}: FavoriteButtonProps) {
   return (
     <button
       type="button"
       onClick={onToggle}
       aria-pressed={isFavorite}
-      aria-label={isFavorite ? `Remover ${appName} dos favoritos` : `Favoritar ${appName}`}
+      aria-label={
+        isFavorite ? `Remover ${appName} dos favoritos` : `Favoritar ${appName}`
+      }
       className="group relative z-10 flex size-9 shrink-0 items-center justify-center rounded-[10px] outline-none transition-colors hover:bg-hover-strong focus-visible:ring-2 focus-visible:ring-ring"
     >
       <Star
@@ -114,7 +132,13 @@ function FavoriteButton({ appName, isFavorite, onToggle }: FavoriteButtonProps) 
   );
 }
 
-function EmptyState({ title, description }: { title: string; description: string }) {
+function EmptyState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <div className="flex flex-col items-center gap-2 rounded-[14px] border border-dashed border-line-dashed px-5 py-10 text-center">
       <p className="text-base font-bold">{title}</p>

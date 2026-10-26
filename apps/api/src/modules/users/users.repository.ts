@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import { AdminUser } from '@sondohub/contracts';
+import type {
+  AdminUser,
+  AdminUserDetail,
+  AppLevel,
+  UpdateUserInput,
+} from '@sondohub/contracts';
 
 /** Campos que podem sair do repositório. password_hash nunca entra aqui. */
 export const safeUserSelect = {
@@ -62,5 +67,63 @@ export class UsersRepository {
       ...user,
       apps: access.map(({ level, application }) => ({ ...application, level })),
     }));
+  }
+
+  /** Um usuário e TODOS os apps ativos, dizendo em quais ele entra e com que nível. */
+  async findDetail(id: string): Promise<AdminUserDetail | null> {
+    const [user, apps] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id }, select: safeUserSelect }),
+      this.prisma.application.findMany({
+        where: { isActive: true },
+        select: {
+          slug: true,
+          name: true,
+          levels: true,
+          // Só o acesso deste usuário: volta [] (sem acesso) ou [{ level }].
+          access: { where: { userId: id }, select: { level: true } },
+        },
+        orderBy: { name: 'asc' },
+      }),
+    ]);
+    if (!user) return null;
+
+    return {
+      ...user,
+      apps: apps.map(({ access, levels, ...app }) => ({
+        ...app,
+        levels: levels as AppLevel[], // coluna Json: o Prisma não sabe o formato, o seed sabe.
+        hasAccess: access.length > 0,
+        level: access[0]?.level ?? null,
+      })),
+    };
+  }
+
+  async update(id: string, data: UpdateUserInput): Promise<void> {
+    await this.prisma.user.update({ where: { id }, data });
+  }
+
+  /** Cria o acesso ou troca o nível: "liberar" e "mudar nível" são a mesma operação. */
+  async upsertAccess(
+    userId: string,
+    applicationId: string,
+    level: number,
+  ): Promise<void> {
+    await this.prisma.userAppAccess.upsert({
+      where: { userId_applicationId: { userId, applicationId } },
+      update: { level },
+      create: { userId, applicationId, level },
+    });
+  }
+
+  /** deleteMany não quebra se o acesso já não existia: tirar duas vezes dá o mesmo resultado. */
+  async deleteAccess(userId: string, applicationId: string): Promise<void> {
+    await this.prisma.userAppAccess.deleteMany({
+      where: { userId, applicationId },
+    });
+  }
+
+  /** Sessões e acessos saem junto (onDelete: Cascade no schema). */
+  async delete(id: string): Promise<void> {
+    await this.prisma.user.delete({ where: { id } });
   }
 }

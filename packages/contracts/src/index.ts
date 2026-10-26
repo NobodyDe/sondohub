@@ -38,8 +38,6 @@ export type TokenResponse = {
 };
 
 /** Cargo do usuário no hub. Espelha o enum UserRole do Prisma. */
-export type UserRole = "MASTER" | "ADMIN" | "USER";
-
 /** Resposta de GET /api/me (perfil no hub). */
 export type HubProfile = {
   id: string;
@@ -59,3 +57,36 @@ export type AdminUser = HubProfile & {
   isActive: boolean;
   apps: AdminUserApp[];
 };
+
+/** Um nível de permissão, como vem da coluna applications.levels. */
+export type AppLevel = { level: number; label: string };
+
+/** Um app do catálogo visto de um usuário: os níveis do app e o nível dele (null = sem acesso). */
+export type AdminUserAppAccess = {
+  slug: string;
+  name: string;
+  levels: AppLevel[];
+  hasAccess: boolean;
+  level: number | null;
+};
+
+/** Resposta de GET /api/admin/users/:id e das rotas que editam o usuário. */
+export type AdminUserDetail = HubProfile & {
+  isActive: boolean;
+  apps: AdminUserAppAccess[];
+};
+
+/** Cargo do usuário no hub. Espelha o enum UserRole do Prisma. */
+export const userRoleSchema = z.enum(["MASTER", "ADMIN", "USER"]);
+export type UserRole = z.infer<typeof userRoleSchema>;
+
+/** Body de PATCH /api/admin/users/:id. Manda só o que mudou. */
+export const updateUserSchema = z.object({
+  role: userRoleSchema.optional(),
+  isActive: z.boolean().optional(),
+});
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+
+/** Body de PUT /api/admin/users/:id/apps/:slug. */
+export const appAccessSchema = z.object({ level: z.number().int().positive() });
+export type AppAccessInput = z.infer<typeof appAccessSchema>;

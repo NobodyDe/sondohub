@@ -29,7 +29,7 @@ export function AdminUsersPage() {
           </div>
           <Link
             to="/admin/usuarios/novo"
-            className="flex h-11 items-center gap-2 rounded-[10px] bg-g-blue px-[18px] text-sm font-bold text-white no-underline transition hover:brightness-110"
+            className="flex h-11 items-center gap-2 rounded-[10px] bg-primary px-[18px] text-sm font-bold text-primary-foreground no-underline transition hover:brightness-110"
           >
             <Plus className="size-[18px]" strokeWidth={2.2} aria-hidden />
             Novo usuário
