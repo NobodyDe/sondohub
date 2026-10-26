@@ -104,7 +104,7 @@ export function NewUserPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-11 rounded-[10px] bg-g-blue px-6 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-50"
+            className="h-11 rounded-[10px] bg-primary px-6 text-sm font-bold text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
           >
             Criar usuário
           </button>

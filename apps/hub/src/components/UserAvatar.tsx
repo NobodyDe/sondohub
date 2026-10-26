@@ -14,7 +14,7 @@ export default function UserAvatar({ name, url, className }: UserAvatarProps) {
   return (
     <div
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-full bg-g-violet text-sm font-bold text-white",
+        "flex size-10 shrink-0 items-center justify-center rounded-full bg-g-royal text-sm font-bold text-white",
         className,
       )}
     >

@@ -1,8 +1,10 @@
 import type {
   AdminUser,
+  AdminUserDetail,
   HubProfile,
   LauncherApp,
   LoginInput,
+  UpdateUserInput,
 } from "@sondohub/contracts";
 
 export class ApiError extends Error {
@@ -34,4 +36,21 @@ export const hubApi = {
   me: () => request<HubProfile>("/me"),
   myApps: () => request<LauncherApp[]>("/me/apps"),
   adminUsers: () => request<AdminUser[]>("/admin/users"),
+  adminUser: (id: string) => request<AdminUserDetail>(`/admin/users/${id}`),
+  updateAdminUser: (id: string, input: UpdateUserInput) =>
+    request<AdminUserDetail>(`/admin/users/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    }),
+  setAdminUserApp: (id: string, slug: string, level: number) =>
+    request<AdminUserDetail>(`/admin/users/${id}/apps/${slug}`, {
+      method: "PUT",
+      body: JSON.stringify({ level }),
+    }),
+  removeAdminUserApp: (id: string, slug: string) =>
+    request<AdminUserDetail>(`/admin/users/${id}/apps/${slug}`, {
+      method: "DELETE",
+    }),
+  deleteAdminUser: (id: string) =>
+    request<void>(`/admin/users/${id}`, { method: "DELETE" }),
 };

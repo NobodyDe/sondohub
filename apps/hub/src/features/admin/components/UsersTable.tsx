@@ -5,7 +5,7 @@ import { cn } from "../../../lib/utils.ts";
 import { ROLES } from "../roles.ts";
 import type { AdminUser, AdminUserApp } from "../types.ts";
 
-const APP_COLORS = ["bg-g-blue", "bg-g-green", "bg-g-violet", "bg-g-teal"];
+const APP_COLORS = ["bg-g-deep", "bg-g-royal", "bg-g-azure"];
 
 export default function UsersTable({ users }: { users: AdminUser[] }) {
   return (

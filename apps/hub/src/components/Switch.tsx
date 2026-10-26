@@ -17,7 +17,7 @@ export default function Switch({ checked, onCheckedChange, label }: SwitchProps)
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative h-[26px] w-11 shrink-0 rounded-full bg-input transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        checked && "bg-g-blue",
+        checked && "bg-primary",
       )}
     >
       <span

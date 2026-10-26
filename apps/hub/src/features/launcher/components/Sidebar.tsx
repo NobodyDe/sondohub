@@ -1,8 +1,16 @@
 import type { HubProfile, LauncherApp } from "@sondohub/contracts";
-import { CircleHelp, LayoutGrid, Settings, Star, Users, type LucideIcon } from "lucide-react";
+import {
+  CircleHelp,
+  LayoutGrid,
+  Settings,
+  Star,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { Link, NavLink } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import { cn } from "../../../lib/utils.ts";
+import AccountMenu from "./AccountMenu.tsx";
 
 type NavItem = { to: string; label: string; icon: LucideIcon };
 
@@ -12,7 +20,9 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/ajuda", label: "Ajuda", icon: CircleHelp },
 ];
 
-const ADMIN_ITEMS: NavItem[] = [{ to: "/admin/usuarios", label: "Usuários", icon: Users }];
+const ADMIN_ITEMS: NavItem[] = [
+  { to: "/admin/usuarios", label: "Usuários", icon: Users },
+];
 
 type SidebarProps = {
   profile: HubProfile;
@@ -24,7 +34,9 @@ export default function Sidebar({ profile, recentApps = [] }: SidebarProps) {
     <aside className="flex w-full shrink-0 flex-col gap-7 border-sidebar-border bg-sidebar px-4 py-5 text-sidebar-foreground md:sticky md:top-0 md:h-svh md:w-60 md:border-r">
       <Brand />
       <NavSection title="Principal" items={NAV_ITEMS} />
-      {profile.role === "MASTER" && <NavSection title="Administração" items={ADMIN_ITEMS} showTitle />}
+      {profile.role === "MASTER" && (
+        <NavSection title="Administração" items={ADMIN_ITEMS} showTitle />
+      )}
       {recentApps.length > 0 && <RecentApps apps={recentApps} />}
       <UserCard profile={profile} />
     </aside>
@@ -34,10 +46,16 @@ export default function Sidebar({ profile, recentApps = [] }: SidebarProps) {
 function Brand() {
   return (
     <div className="flex items-center gap-2.5 px-2 py-1">
-      <div className="flex size-8 items-center justify-center rounded-[9px] bg-g-blue">
-        <LayoutGrid className="size-[18px] text-white" strokeWidth={2.2} aria-hidden />
+      <div className="flex size-8 items-center justify-center rounded-[9px] bg-primary">
+        <LayoutGrid
+          className="size-[18px] text-white"
+          strokeWidth={2.2}
+          aria-hidden
+        />
       </div>
-      <span className="text-xl font-extrabold tracking-tight text-foreground">SondoHub</span>
+      <span className="text-xl font-extrabold tracking-tight text-foreground">
+        SondoHub
+      </span>
     </div>
   );
 }
@@ -52,7 +70,9 @@ function NavSection({ title, items, showTitle = false }: NavSectionProps) {
   return (
     <nav aria-label={title} className="flex flex-col gap-1">
       {showTitle && (
-        <span className="px-3 pb-1.5 text-xs font-semibold tracking-wider text-ink-label uppercase">{title}</span>
+        <span className="px-3 pb-1.5 text-xs font-semibold tracking-wider text-ink-label uppercase">
+          {title}
+        </span>
       )}
       {items.map(({ to, label, icon: Icon }) => (
         <NavLink
@@ -62,7 +82,8 @@ function NavSection({ title, items, showTitle = false }: NavSectionProps) {
           className={({ isActive }) =>
             cn(
               "flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[15px] text-ink-nav no-underline transition-colors hover:bg-accent hover:text-foreground",
-              isActive && "bg-sidebar-accent font-semibold text-sidebar-accent-foreground hover:bg-sidebar-accent",
+              isActive &&
+                "bg-sidebar-accent font-semibold text-sidebar-accent-foreground hover:bg-sidebar-accent",
             )
           }
         >
@@ -77,7 +98,9 @@ function NavSection({ title, items, showTitle = false }: NavSectionProps) {
 function RecentApps({ apps }: { apps: LauncherApp[] }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="px-3 text-xs font-semibold tracking-wider text-ink-label uppercase">Recentes</span>
+      <span className="px-3 text-xs font-semibold tracking-wider text-ink-label uppercase">
+        Recentes
+      </span>
       {apps.map((app) => (
         <a
           key={app.slug}
@@ -97,20 +120,15 @@ function UserCard({ profile }: { profile: HubProfile }) {
     <div className="mt-auto flex items-center gap-3 rounded-xl bg-card p-3">
       <UserAvatar name={profile.name} url={profile.avatarUrl} />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate text-sm font-semibold text-foreground">{profile.name}</span>
+        <span className="truncate text-sm font-semibold text-foreground">
+          {profile.name}
+        </span>
         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="size-[7px] rounded-full bg-online" aria-hidden />
           SSO · Sondotecnica
         </span>
       </div>
-      <Link
-        to="/conta"
-        aria-label="Configurações da conta"
-        className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-ink-nav transition-colors hover:bg-hover-strong hover:text-foreground"
-      >
-        <Settings className="size-5" strokeWidth={1.8} aria-hidden />
-      </Link>
+      <AccountMenu profile={profile} />
     </div>
   );
 }
-

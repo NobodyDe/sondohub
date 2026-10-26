@@ -54,4 +54,10 @@ export class AppsRepository {
     });
     return apps.map((app) => app.origin);
   }
+  findBySlug(slug: string) {
+    return this.prisma.application.findUnique({
+      where: { slug },
+      select: { id: true, levels: true },
+    });
+  }
 }

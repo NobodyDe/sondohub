@@ -22,7 +22,7 @@ export default function UsersToolbar({ filter, onFilterChange, query, onQueryCha
             onClick={() => onFilterChange(id)}
             className={cn(
               "h-9 rounded-full border border-input px-4 text-sm font-semibold text-ink-nav transition-colors hover:border-line-hover",
-              filter === id && "border-chip-active bg-chip-active text-background hover:border-chip-active",
+              filter === id && "border-primary bg-primary text-primary-foreground hover:border-primary",
             )}
           >
             {label}

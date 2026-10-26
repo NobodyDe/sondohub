@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>hub</title>
+    <!-- Liga o modo escuro antes do React renderizar (evita piscar branco).
+         localStorage.theme = "dark" | "light" força um modo; sem nada salvo, segue o sistema. -->
+    <script>
+      document.documentElement.classList.toggle(
+        "dark",
+        localStorage.theme === "dark" ||
+          (!("theme" in localStorage) && matchMedia("(prefers-color-scheme: dark)").matches),
+      );
+    </script>
   </head>
   <body>
     <div id="root"></div>
