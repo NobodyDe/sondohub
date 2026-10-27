@@ -1,19 +1,24 @@
 import type {
+  AdminApp,
   AdminUser,
   AdminUserDetail,
+  CreateAppInput,
   CreateUserInput,
   HubProfile,
   LauncherApp,
   LoginInput,
+  UpdateAppInput,
   UpdateUserInput,
 } from "@sondohub/contracts";
 
 export class ApiError extends Error {
   readonly status: number;
+  readonly body: unknown;
 
-  constructor(status: number) {
+  constructor(status: number, body: unknown) {
     super(`A API respondeu ${status}`);
     this.status = status;
+    this.body = body;
   }
 }
 
@@ -23,7 +28,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     headers: { "Content-Type": "application/json" },
   });
-  if (!response.ok) throw new ApiError(response.status);
+  // Corpo de erro é opcional: um 502 do proxy pode nem ser JSON.
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await response.json().catch(() => null),
+    );
   return (response.status === 204 ? undefined : await response.json()) as T;
 }
 
@@ -59,4 +69,16 @@ export const hubApi = {
     }),
   deleteAdminUser: (id: string) =>
     request<void>(`/admin/users/${id}`, { method: "DELETE" }),
+  adminApps: () => request<AdminApp[]>("/admin/apps"),
+  adminApp: (id: string) => request<AdminApp>(`/admin/apps/${id}`),
+  createAdminApp: (input: CreateAppInput) =>
+    request<AdminApp>("/admin/apps", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  updateAdminApp: (id: string, input: UpdateAppInput) =>
+    request<AdminApp>(`/admin/apps/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    }),
 };

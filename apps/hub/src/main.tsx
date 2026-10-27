@@ -2,22 +2,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { AdminUserPage } from "./features/admin/admin-user-page.tsx";
-import { AdminUsersPage } from "./features/admin/admin-users-page.tsx";
-import { NewUserPage } from "./features/admin/new-user-page.tsx";
-import { LoginPage } from "./features/auth/login-page.tsx";
-import "./index.css";
 import { z } from "zod";
+import { adminRoutes } from "./features/admin/routes.tsx";
+import { LoginPage } from "./features/auth/login-page.tsx";
 import { LauncherPage } from "./features/launcher/launcher-page.tsx";
+import "./index.css";
+
 z.config(z.locales.pt());
 
 const router = createBrowserRouter([
   { path: "/", element: <LauncherPage /> },
   { path: "/login", element: <LoginPage /> },
-  { path: "/admin/usuarios", element: <AdminUsersPage /> },
-  { path: "/admin/usuarios/novo", element: <NewUserPage /> },
-  { path: "/admin/usuarios/:id", element: <AdminUserPage /> },
-  { path: "/", element: <LoginPage /> },
+  ...adminRoutes,
 ]);
 
 const queryClient = new QueryClient();

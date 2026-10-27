@@ -1,13 +1,13 @@
 import type { HubProfile, LauncherApp } from "@sondohub/contracts";
 import {
+  Blocks,
   CircleHelp,
   LayoutGrid,
-  Settings,
   Star,
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { Link, NavLink } from "react-router";
+import { NavLink } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import { cn } from "../../../lib/utils.ts";
 import AccountMenu from "./AccountMenu.tsx";
@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const ADMIN_ITEMS: NavItem[] = [
   { to: "/admin/usuarios", label: "Usuários", icon: Users },
+  { to: "/admin/aplicativos", label: "Catálogo", icon: Blocks },
 ];
 
 type SidebarProps = {

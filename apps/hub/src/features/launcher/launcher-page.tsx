@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Navigate } from "react-router";
-import { PREVIEW_APPS } from "../../constants/data.tsx";
 import { ApiError, hubApi } from "../../lib/api.ts";
 import Banner from "./components/Banner.tsx";
 import Header from "./components/Header.tsx";
@@ -39,19 +38,6 @@ function toAppViews(apps: LauncherApp[], favorites: string[]): AppView[] {
   }));
 }
 
-function toPreviewViews(favorites: string[]): AppView[] {
-  return PREVIEW_APPS.filter((app) => app.is_active).map((app) => ({
-    slug: app.slug,
-    name: app.name,
-    url: app.url,
-    iconUrl: "",
-    icon: app.icon,
-    gradient: app.gradient,
-    ...DEFAULT_DETAILS,
-    isFavorite: favorites.includes(app.slug),
-  }));
-}
-
 export function LauncherPage() {
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -80,9 +66,7 @@ export function LauncherPage() {
     );
   }
 
-  const appViews = apps.data
-    ? [...toAppViews(apps.data, favorites), ...toPreviewViews(favorites)]
-    : [];
+  const appViews = apps.data ? toAppViews(apps.data, favorites) : [];
 
   return (
     <div className="flex min-h-svh flex-col md:flex-row">
