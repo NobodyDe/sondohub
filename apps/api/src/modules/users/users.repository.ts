@@ -5,6 +5,7 @@ import type {
   AdminUser,
   AdminUserDetail,
   AppLevel,
+  CreateUserInput,
   UpdateUserInput,
 } from '@sondohub/contracts';
 
@@ -96,6 +97,26 @@ export class UsersRepository {
         level: access[0]?.level ?? null,
       })),
     };
+  }
+
+  async existsByEmail(email: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    return user !== null;
+  }
+
+  /** Cria o usuário (sem senha: ela vem pelo convite) e os acessos de uma vez. Devolve o id. */
+  async create(
+    { name, email, role }: Omit<CreateUserInput, 'apps'>,
+    access: { applicationId: string; level: number }[],
+  ): Promise<string> {
+    const user = await this.prisma.user.create({
+      data: { name, email, role, access: { create: access } },
+      select: { id: true },
+    });
+    return user.id;
   }
 
   async update(id: string, data: UpdateUserInput): Promise<void> {

@@ -1,5 +1,5 @@
-import type { AdminUserAppAccess } from "@sondohub/contracts";
-import type { AdminUser, AppGrant, CatalogApp } from "./types.ts";
+import type { AdminUserAppAccess, AdminUserDetail } from "@sondohub/contracts";
+import type { AppGrant, CatalogApp } from "./types.ts";
 
 /** O nível no app, ou null se não há acesso. */
 export function findLevel(grants: AppGrant[], slug: string): number | null {
@@ -17,16 +17,17 @@ export function withGrant(
 }
 
 /** O mesmo que withGrant, para um usuário já cadastrado (que guarda também o nome do app). */
+/** O usuário com o nível do app trocado. level null = sem acesso. */
 export function withAppLevel(
-  user: AdminUser,
-  app: CatalogApp,
+  user: AdminUserDetail,
+  slug: string,
   level: number | null,
-): AdminUser {
-  const others = user.apps.filter((access) => access.slug !== app.slug);
-  if (level === null) return { ...user, apps: others };
+): AdminUserDetail {
   return {
     ...user,
-    apps: [...others, { slug: app.slug, name: app.name, level }],
+    apps: user.apps.map((app) =>
+      app.slug === slug ? { ...app, level, hasAccess: level !== null } : app,
+    ),
   };
 }
 

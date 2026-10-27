@@ -90,3 +90,17 @@ export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 /** Body de PUT /api/admin/users/:id/apps/:slug. */
 export const appAccessSchema = z.object({ level: z.number().int().positive() });
 export type AppAccessInput = z.infer<typeof appAccessSchema>;
+
+/** Um app liberado no cadastro: qual app e em que nível. */
+export const appGrantSchema = appAccessSchema.extend({ slug: z.string().min(1) });
+
+/** Body de POST /api/admin/users. */
+export const createUserSchema = z.object({
+  name: z.string().trim().min(3, "Informe o nome completo.").max(120, "Use no máximo 120 caracteres."),
+  email: emailSchema,
+  role: userRoleSchema,
+  apps: z
+    .array(appGrantSchema)
+    .refine((apps) => new Set(apps.map((app) => app.slug)).size === apps.length, "App repetido."),
+});
+export type CreateUserInput = z.infer<typeof createUserSchema>;

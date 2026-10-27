@@ -22,6 +22,7 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | 08 | [Fechando as portas](08-aula-seguranca.md) | Guard global, validação, rate limit, bloqueio, CSRF, CORS dinâmico e testes |
 | 09 | [Banco da empresa (Azure)](09-banco-da-empresa.md) | As tabelas criadas no schema `sondohub` do PostgreSQL da empresa com `migrate deploy`, o primeiro Master e os apps reais |
 | 10 | [Tela do usuário no admin](10-aula-admin-usuario.md) | `GET /api/admin/users/:id` com todos os apps, níveis e `hasAccess`; editar cargo, ativo e acesso aos apps; remover usuário |
+| 11 | [Criar usuário](11-aula-criar-usuario.md) | `POST /api/admin/users` só para Master (o `MasterGuard` explicado), com cargo e apps numa transação, e a tela de novo usuário funcionando |
 
 ## Formato de cada aula
 

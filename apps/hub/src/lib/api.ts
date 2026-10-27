@@ -1,6 +1,7 @@
 import type {
   AdminUser,
   AdminUserDetail,
+  CreateUserInput,
   HubProfile,
   LauncherApp,
   LoginInput,
@@ -37,6 +38,11 @@ export const hubApi = {
   myApps: () => request<LauncherApp[]>("/me/apps"),
   adminUsers: () => request<AdminUser[]>("/admin/users"),
   adminUser: (id: string) => request<AdminUserDetail>(`/admin/users/${id}`),
+  createAdminUser: (input: CreateUserInput) =>
+    request<AdminUserDetail>("/admin/users", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
   updateAdminUser: (id: string, input: UpdateUserInput) =>
     request<AdminUserDetail>(`/admin/users/${id}`, {
       method: "PATCH",

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -7,6 +8,7 @@ import {
 import type {
   AdminUserDetail,
   AppLevel,
+  CreateUserInput,
   UpdateUserInput,
 } from '@sondohub/contracts';
 import { AppsRepository } from '../apps/apps.repository.js';
@@ -23,6 +25,15 @@ export class AdminUsersService {
     const user = await this.users.findDetail(id);
     if (!user) throw new NotFoundException('Usuário não encontrado.');
     return user;
+  }
+
+  async create({ apps, ...data }: CreateUserInput): Promise<AdminUserDetail> {
+    if (await this.users.existsByEmail(data.email))
+      throw new ConflictException('Já existe um usuário com esse e-mail.');
+
+    const access = await this.resolveAccess(apps);
+    const id = await this.users.create(data, access);
+    return this.getDetail(id);
   }
 
   async update(
@@ -43,9 +54,7 @@ export class AdminUsersService {
   ): Promise<AdminUserDetail> {
     await this.getDetail(id); // sem isso, um id inexistente estoura a chave estrangeira (500).
     const app = await this.findApp(slug);
-    const levels = app.levels as AppLevel[];
-    if (!levels.some((option) => option.level === level))
-      throw new BadRequestException('Este app não tem esse nível.');
+    assertLevelExists(app.levels as AppLevel[], level);
 
     await this.users.upsertAccess(id, app.id, level);
     return this.getDetail(id);
@@ -68,6 +77,23 @@ export class AdminUsersService {
     if (!app) throw new NotFoundException('App não encontrado.');
     return app;
   }
+
+  /** Troca o slug pelo id do app, conferindo se o app existe e se tem o nível pedido. */
+  private resolveAccess(apps: CreateUserInput['apps']) {
+    return Promise.all(
+      apps.map(async ({ slug, level }) => {
+        const app = await this.findApp(slug);
+        assertLevelExists(app.levels as AppLevel[], level);
+        return { applicationId: app.id, level };
+      }),
+    );
+  }
+}
+
+/** O nível precisa ser um dos que o app oferece (coluna applications.levels). */
+function assertLevelExists(levels: AppLevel[], level: number) {
+  if (!levels.some((option) => option.level === level))
+    throw new BadRequestException('Este app não tem esse nível.');
 }
 
 /** O Master não mexe no próprio cargo, status nem conta por aqui: evita se trancar fora do painel. */

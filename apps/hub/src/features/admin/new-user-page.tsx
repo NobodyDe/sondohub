@@ -1,4 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createUserSchema, type CreateUserInput } from "@sondohub/contracts";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
@@ -8,20 +10,29 @@ import AdminShell from "./components/AdminShell.tsx";
 import AppAccessList from "./components/AppAccessList.tsx";
 import RolePicker from "./components/RolePicker.tsx";
 import { FAKE_APPS } from "./fake-users.ts";
-import { newUserSchema, type NewUserInput } from "./new-user-schema.ts";
 import { withGrant } from "./user-access.ts";
+import { ApiError, hubApi } from "@/lib/api.ts";
 
 export function NewUserPage() {
   const navigate = useNavigate();
-  const apps = FAKE_APPS; // Troca por useQuery(GET /api/admin/apps) na integração.
+  const queryClient = useQueryClient();
+  const apps = FAKE_APPS; // Próxima aula: useQuery(GET /api/admin/apps).
   const form = useForm({
-    resolver: zodResolver(newUserSchema),
+    resolver: zodResolver(createUserSchema),
     defaultValues: { name: "", email: "", role: "USER", apps: [] },
   });
   const { errors, isSubmitting } = form.formState;
 
-  async function onSubmit(input: NewUserInput) {
-    console.info("Novo usuário (fake):", input); // Na integração: POST /api/admin/users.
+  async function onSubmit(input: CreateUserInput) {
+    try {
+      await hubApi.createAdminUser(input);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409)
+        return form.setError("email", { message: "Já existe um usuário com esse e-mail." });
+      return form.setError("root", { message: "Não deu para criar o usuário. Tente de novo." });
+    }
+
+    await queryClient.invalidateQueries({ queryKey: ["admin", "users"] }); // a lista volta com ele.
     navigate("/admin/usuarios");
   }
 
@@ -95,6 +106,11 @@ export function NewUserPage() {
         />
 
         <footer className="flex flex-wrap justify-end gap-2.5 border-t border-line-subtle pt-6">
+          {errors.root && (
+            <p role="alert" className="mr-auto self-center text-sm font-semibold text-danger-text">
+              {errors.root.message}
+            </p>
+          )}
           <Link
             to="/admin/usuarios"
             className="flex h-11 items-center rounded-[10px] border border-input px-5 text-sm font-semibold text-foreground no-underline transition-colors hover:bg-secondary"
