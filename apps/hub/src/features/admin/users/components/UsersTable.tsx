@@ -1,9 +1,9 @@
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router";
-import UserAvatar from "../../../components/UserAvatar.tsx";
-import { cn } from "../../../lib/utils.ts";
+import UserAvatar from "@/components/UserAvatar.tsx";
+import { cn } from "@/lib/utils.ts";
 import { ROLES } from "../roles.ts";
-import type { AdminUser, AdminUserApp } from "../types.ts";
+import type { AdminUser, AdminUserApp } from "@sondohub/contracts";
 
 const APP_COLORS = ["bg-g-deep", "bg-g-royal", "bg-g-azure"];
 

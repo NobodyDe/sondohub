@@ -1,7 +1,7 @@
-import Switch from "../../../components/Switch.tsx";
-import { cn } from "../../../lib/utils.ts";
-import { findLevel, lowestLevel } from "../user-access.ts";
-import type { AppGrant, CatalogApp } from "../types.ts";
+import Switch from "@/components/Switch.tsx";
+import { cn } from "@/lib/utils.ts";
+import { findLevel, lowestLevel } from "./user-access.ts";
+import type { AppGrant, CatalogApp } from "./types.ts";
 
 const APP_COLORS = ["bg-g-sky", "bg-g-deep", "bg-g-royal", "bg-g-azure"];
 
@@ -48,7 +48,7 @@ type AppAccessCardProps = {
   onLevelChange: (level: number | null) => void;
 };
 
-function AppAccessCard({ app, colorClassName, level, onLevelChange }: AppAccessCardProps) {
+export function AppAccessCard({ app, colorClassName, level, onLevelChange }: AppAccessCardProps) {
   const hasAccess = level !== null;
 
   return (

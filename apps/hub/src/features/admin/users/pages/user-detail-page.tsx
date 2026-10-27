@@ -1,14 +1,13 @@
+import type { AdminUserDetail, UserRole } from "@sondohub/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router";
-import AdminShell from "./components/AdminShell.tsx";
-import AppAccessList from "./components/AppAccessList.tsx";
-import RemoveUserSection from "./components/RemoveUserSection.tsx";
-import RolePicker from "./components/RolePicker.tsx";
-import UserProfileHeader from "./components/UserProfileHeader.tsx";
-import { grantsOf, withAppLevel } from "./user-access.ts";
 import { hubApi } from "@/lib/api.ts";
-import type { AdminUserDetail, UserRole } from "@sondohub/contracts";
-import type { CatalogApp } from "./types.ts";
+import AppAccessList from "../../shared/AppAccessList.tsx";
+import type { CatalogApp } from "../../shared/types.ts";
+import { grantsOf, withAppLevel } from "../../shared/user-access.ts";
+import RemoveUserSection from "../components/RemoveUserSection.tsx";
+import RolePicker from "../components/RolePicker.tsx";
+import UserProfileHeader from "../components/UserProfileHeader.tsx";
 
 const USERS_LIST_KEY = ["admin", "users"];
 
@@ -18,7 +17,7 @@ type Edit = {
   request: () => Promise<AdminUserDetail>;
 };
 
-export function AdminUserPage() {
+export function UserDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -61,21 +60,14 @@ export function AdminUserPage() {
     },
   });
 
-  if (isPending)
-    return (
-      <AdminShell>
-        <p className="text-muted-foreground">Carregando…</p>
-      </AdminShell>
-    );
+  if (isPending) return <p className="text-muted-foreground">Carregando…</p>;
 
   if (!user)
     return (
-      <AdminShell>
-        <div className="mx-auto flex max-w-[980px] flex-col items-start gap-3">
-          <h1 className="text-2xl font-bold">Usuário não encontrado</h1>
-          <Link to="/admin/usuarios">Voltar para a lista</Link>
-        </div>
-      </AdminShell>
+      <div className="mx-auto flex max-w-[980px] flex-col items-start gap-3">
+        <h1 className="text-2xl font-bold">Usuário não encontrado</h1>
+        <Link to="/admin/usuarios">Voltar para a lista</Link>
+      </div>
     );
 
   function changeRole(role: UserRole) {
@@ -103,22 +95,20 @@ export function AdminUserPage() {
   }
 
   return (
-    <AdminShell>
-      <div className="mx-auto flex max-w-[980px] flex-col gap-8">
-        <UserProfileHeader user={user} onActiveChange={changeActive} />
-        {(save.error || remove.error) && (
-          <p role="alert" className="text-sm font-semibold text-danger-text">
-            Não deu para salvar. A tela voltou ao que está gravado.
-          </p>
-        )}
-        <RolePicker value={user.role} onChange={changeRole} />
-        <AppAccessList
-          apps={user.apps}
-          grants={grantsOf(user.apps)}
-          onLevelChange={changeAppLevel}
-        />
-        <RemoveUserSection onRemove={() => remove.mutate()} />
-      </div>
-    </AdminShell>
+    <div className="mx-auto flex max-w-[980px] flex-col gap-8">
+      <UserProfileHeader user={user} onActiveChange={changeActive} />
+      {(save.error || remove.error) && (
+        <p role="alert" className="text-sm font-semibold text-danger-text">
+          Não deu para salvar. A tela voltou ao que está gravado.
+        </p>
+      )}
+      <RolePicker value={user.role} onChange={changeRole} />
+      <AppAccessList
+        apps={user.apps}
+        grants={grantsOf(user.apps)}
+        onLevelChange={changeAppLevel}
+      />
+      <RemoveUserSection onRemove={() => remove.mutate()} />
+    </div>
   );
 }

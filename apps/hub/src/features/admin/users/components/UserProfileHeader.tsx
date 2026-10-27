@@ -1,8 +1,7 @@
-import { ChevronLeft } from "lucide-react";
-import { Link } from "react-router";
-import Switch from "../../../components/Switch.tsx";
-import UserAvatar from "../../../components/UserAvatar.tsx";
-import { cn } from "../../../lib/utils.ts";
+import BackLink from "@/components/BackLink.tsx";
+import Switch from "@/components/Switch.tsx";
+import UserAvatar from "@/components/UserAvatar.tsx";
+import { cn } from "@/lib/utils.ts";
 import { ROLES } from "../roles.ts";
 
 import type { HubProfile } from "@sondohub/contracts";
@@ -20,13 +19,7 @@ export default function UserProfileHeader({
 
   return (
     <header className="flex flex-col gap-6">
-      <Link
-        to="/admin/usuarios"
-        className="flex items-center gap-2 self-start rounded-[10px] py-2 pr-3 pl-2 text-sm font-semibold text-ink-nav no-underline transition-colors hover:bg-secondary hover:text-foreground"
-      >
-        <ChevronLeft className="size-[18px]" aria-hidden />
-        Usuários
-      </Link>
+      <BackLink to="/admin/usuarios" label="Usuários" />
 
       <div className="flex flex-wrap items-center gap-5">
         <UserAvatar

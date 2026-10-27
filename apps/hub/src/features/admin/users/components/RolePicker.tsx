@@ -1,5 +1,5 @@
 import { LockKeyhole } from "lucide-react";
-import { cn } from "../../../lib/utils.ts";
+import { cn } from "@/lib/utils.ts";
 import { ROLE_ORDER, ROLES } from "../roles.ts";
 import type { UserRole } from "@sondohub/contracts";
 
