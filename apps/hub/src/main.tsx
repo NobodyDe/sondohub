@@ -6,6 +6,7 @@ import { z } from "zod";
 import { adminRoutes } from "./features/admin/routes.tsx";
 import { LoginPage } from "./features/auth/login-page.tsx";
 import { LauncherPage } from "./features/launcher/launcher-page.tsx";
+import { EditUserPage } from "./features/user/edit-user-page.tsx";
 import "./index.css";
 
 z.config(z.locales.pt());
@@ -13,7 +14,8 @@ z.config(z.locales.pt());
 const router = createBrowserRouter([
   { path: "/", element: <LauncherPage /> },
   { path: "/login", element: <LoginPage /> },
-  ...adminRoutes,
+  { path: "/perfil", element: <EditUserPage /> },
+  ...adminRoutes, // /admin/* passa pelo AdminLayout: sidebar e guarda de Master.
 ]);
 
 const queryClient = new QueryClient();

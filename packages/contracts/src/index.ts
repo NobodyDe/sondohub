@@ -219,3 +219,19 @@ export type AdminApp = LauncherApp & {
   isActive: boolean;
   userCount: number;
 };
+
+/** Body de PATCH /api/me. Por enquanto só o nome; a foto entra quando tiver upload. */
+export const updateProfileSchema = createUserSchema.pick({ name: true });
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+/** Resposta de GET /api/me/profile e de PATCH /api/me. */
+export type MyProfile = HubProfile & { updatedAt: string };
+
+/** Um dispositivo conectado (uma sessão ativa). Resposta de GET /api/me/sessions. */
+export type MySession = {
+  id: string;
+  userAgent: string | null;
+  ip: string | null;
+  createdAt: string;
+  isCurrent: boolean;
+};

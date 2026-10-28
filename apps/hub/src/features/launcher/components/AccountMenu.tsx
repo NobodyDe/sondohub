@@ -1,5 +1,5 @@
 import type { HubProfile } from "@sondohub/contracts";
-import { Moon, Settings, Sun } from "lucide-react";
+import { Moon, Settings, Sun, UserRound } from "lucide-react";
 import { Link } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import {
@@ -38,6 +38,11 @@ export default function AccountMenu({ profile }: { profile: HubProfile }) {
           <Settings /> Configurações
         </DropdownMenuItem>
         <DropdownMenuSeparator />
+        <DropdownMenuItem render={<Link to="/perfil" />}>
+          <UserRound /> Meu perfil
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+
         <ThemeToggleItem />
       </DropdownMenuContent>
     </DropdownMenu>
