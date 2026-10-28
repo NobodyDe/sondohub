@@ -36,6 +36,7 @@ model Application {
   id        String   @id @default(uuid()) @db.Uuid
   slug      String   @unique
   name      String
+  description String   @db.VarChar(144)
   iconUrl   String   @map("icon_url")
   url       String
   origin    String   @unique

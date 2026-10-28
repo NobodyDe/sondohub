@@ -10,6 +10,7 @@ import { ApiError } from "@/lib/api.ts";
 export const NEW_APP: CreateAppInput = {
   slug: "",
   name: "",
+  description: "",
   url: "",
   iconUrl: "",
   levels: DEFAULT_APP_LEVELS,
@@ -20,6 +21,7 @@ export const NEW_APP: CreateAppInput = {
 export function toFormValues({
   slug,
   name,
+  description,
   url,
   iconUrl,
   levels,
@@ -28,6 +30,7 @@ export function toFormValues({
   return {
     slug,
     name,
+    description,
     url,
     levels,
     isActive,

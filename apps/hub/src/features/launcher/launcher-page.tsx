@@ -15,21 +15,15 @@ async function logout() {
   location.assign("/login");
 }
 
-type AppDetails = Pick<AppView, "description" | "category">;
+type AppDetails = Pick<AppView, "category">;
 
-// Provisório: sai daqui quando o contrato LauncherApp trouxer esses campos.
+// Provisório: sai daqui quando o contrato LauncherApp trouxer a categoria.
 const APP_DETAILS: Record<string, AppDetails> = {
-  demo: {
-    description: "Aplicativo teste para o sondohub",
-    category: "Engenharia",
-  },
-  gemeo: {
-    description: "Plataforma de monitoramento inteligente",
-    category: "BIM",
-  },
+  demo: { category: "Engenharia" },
+  gemeo: { category: "BIM" },
 };
 
-const DEFAULT_DETAILS: AppDetails = { description: "", category: "Outros" };
+const DEFAULT_DETAILS: AppDetails = { category: "Outros" };
 
 function toAppViews(apps: LauncherApp[], favorites: string[]): AppView[] {
   return apps.map((app) => ({

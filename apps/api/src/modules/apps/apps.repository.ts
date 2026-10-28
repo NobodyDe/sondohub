@@ -14,6 +14,7 @@ const adminAppSelect = {
   id: true,
   slug: true,
   name: true,
+  description: true,
   iconUrl: true,
   url: true,
   origin: true,
@@ -57,7 +58,13 @@ export class AppsRepository {
       select: {
         level: true,
         application: {
-          select: { slug: true, name: true, iconUrl: true, url: true },
+          select: {
+            slug: true,
+            name: true,
+            description: true,
+            iconUrl: true,
+            url: true,
+          },
         },
       },
       orderBy: { application: { name: 'asc' } },
