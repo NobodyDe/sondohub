@@ -1,3 +1,4 @@
+import argon2 from 'argon2';
 import {
   BadRequestException,
   ConflictException,
@@ -27,12 +28,17 @@ export class AdminUsersService {
     return user;
   }
 
-  async create({ apps, ...data }: CreateUserInput): Promise<AdminUserDetail> {
+  async create({
+    apps,
+    password,
+    ...data
+  }: CreateUserInput): Promise<AdminUserDetail> {
     if (await this.users.existsByEmail(data.email))
       throw new ConflictException('Já existe um usuário com esse e-mail.');
 
     const access = await this.resolveAccess(apps);
-    const id = await this.users.create(data, access);
+    const passwordHash = await argon2.hash(password);
+    const id = await this.users.create({ ...data, passwordHash }, access);
     return this.getDetail(id);
   }
 

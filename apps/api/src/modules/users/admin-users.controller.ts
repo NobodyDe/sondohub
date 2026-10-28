@@ -41,11 +41,9 @@ export class AdminUsersController {
     return this.users.listAll();
   }
 
-  /** Cria o usuário com cargo e apps. Sem senha: ela é definida pelo convite. */
+  /** Cria o usuário com senha, cargo e apps. */
   @Post()
-  create(
-    @Body(new ZodValidationPipe(createUserSchema)) body: CreateUserInput,
-  ) {
+  create(@Body(new ZodValidationPipe(createUserSchema)) body: CreateUserInput) {
     return this.admin.create(body);
   }
 

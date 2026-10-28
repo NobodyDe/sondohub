@@ -98,6 +98,15 @@ export const appGrantSchema = appAccessSchema.extend({
 });
 
 export const APP_DESCRIPTION_MAX = 144;
+export const HAS_NUMBER = /\d/;
+export const HAS_SPECIAL = /[^A-Za-z0-9]/;
+
+export const passwordSchema = z
+  .string()
+  .min(8, "A senha deve ter no mínimo 8 caracteres.")
+  .max(128, "A senha pode ter no máximo 128 caracteres.")
+  .regex(HAS_NUMBER, "Use pelo menos um número.")
+  .regex(HAS_SPECIAL, "Use pelo menos um caractere especial.");
 
 /** Body de POST /api/admin/users. */
 export const createUserSchema = z.object({
@@ -107,6 +116,7 @@ export const createUserSchema = z.object({
     .min(3, "Informe o nome completo.")
     .max(120, "Use no máximo 120 caracteres."),
   email: emailSchema,
+  password: passwordSchema,
   role: userRoleSchema,
   apps: z
     .array(appGrantSchema)
