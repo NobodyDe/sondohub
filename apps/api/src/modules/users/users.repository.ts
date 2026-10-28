@@ -107,13 +107,18 @@ export class UsersRepository {
     return user !== null;
   }
 
-  /** Cria o usuário (sem senha: ela vem pelo convite) e os acessos de uma vez. Devolve o id. */
+  /** Cria o usuário com o hash da senha e os acessos de uma vez. Devolve o id. */
   async create(
-    { name, email, role }: Omit<CreateUserInput, 'apps'>,
+    {
+      name,
+      email,
+      role,
+      passwordHash,
+    }: Omit<CreateUserInput, 'apps' | 'password'> & { passwordHash: string },
     access: { applicationId: string; level: number }[],
   ): Promise<string> {
     const user = await this.prisma.user.create({
-      data: { name, email, role, access: { create: access } },
+      data: { name, email, role, passwordHash, access: { create: access } },
       select: { id: true },
     });
     return user.id;
