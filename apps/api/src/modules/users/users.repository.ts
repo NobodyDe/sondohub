@@ -6,6 +6,7 @@ import type {
   AdminUserDetail,
   AppLevel,
   CreateUserInput,
+  UpdateProfileInput,
   UpdateUserInput,
 } from '@sondohub/contracts';
 
@@ -20,6 +21,10 @@ export const safeUserSelect = {
 } satisfies Prisma.UserSelect;
 
 export type SafeUser = Prisma.UserGetPayload<{ select: typeof safeUserSelect }>;
+const profileSelect = {
+  ...safeUserSelect,
+  updatedAt: true,
+} satisfies Prisma.UserSelect;
 
 @Injectable()
 export class UsersRepository {
@@ -151,5 +156,21 @@ export class UsersRepository {
   /** Sessões e acessos saem junto (onDelete: Cascade no schema). */
   async delete(id: string): Promise<void> {
     await this.prisma.user.delete({ where: { id } });
+  }
+
+  findProfile(id: string) {
+    return this.prisma.user.findUniqueOrThrow({
+      where: { id },
+      select: profileSelect,
+    });
+  }
+
+  /** O update devolve a linha já com o updated_at que o trigger gravou. */
+  updateProfile(id: string, data: UpdateProfileInput) {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      select: profileSelect,
+    });
   }
 }

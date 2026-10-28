@@ -62,4 +62,27 @@ export class SessionsService {
       data: { revokedAt: new Date() },
     });
   }
+  /** Sessões que ainda valem: não revogadas e não vencidas. */
+  listActive(userId: string) {
+    return this.prisma.session.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true, userAgent: true, ip: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /** O userId no filtro impede derrubar a sessão de outra pessoa trocando o id na URL. */
+  async revokeOwn(userId: string, sessionId: string): Promise<void> {
+    await this.prisma.session.updateMany({
+      where: { id: sessionId, userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
+
+  async revokeAll(userId: string): Promise<void> {
+    await this.prisma.session.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
 }

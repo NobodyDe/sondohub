@@ -7,7 +7,10 @@ import type {
   HubProfile,
   LauncherApp,
   LoginInput,
+  MyProfile,
+  MySession,
   UpdateAppInput,
+  UpdateProfileInput,
   UpdateUserInput,
 } from "@sondohub/contracts";
 
@@ -81,4 +84,13 @@ export const hubApi = {
       method: "PUT",
       body: JSON.stringify(input),
     }),
+  myProfile: () => request<MyProfile>("/me/profile"),
+  updateMyProfile: (input: UpdateProfileInput) =>
+    request<MyProfile>("/me", { method: "PATCH", body: JSON.stringify(input) }),
+  deleteMyAccount: () => request<void>("/me", { method: "DELETE" }),
+  mySessions: () => request<MySession[]>("/me/sessions"),
+  revokeMySession: (id: string) =>
+    request<void>(`/me/sessions/${id}`, { method: "DELETE" }),
+  revokeAllMySessions: () =>
+    request<void>("/me/sessions", { method: "DELETE" }),
 };
