@@ -26,6 +26,7 @@ export type SondoUser = {
 export type LauncherApp = {
   slug: string;
   name: string;
+  description: string;
   iconUrl: string;
   url: string;
 };
@@ -95,6 +96,8 @@ export type AppAccessInput = z.infer<typeof appAccessSchema>;
 export const appGrantSchema = appAccessSchema.extend({
   slug: z.string().min(1),
 });
+
+export const APP_DESCRIPTION_MAX = 144;
 
 /** Body de POST /api/admin/users. */
 export const createUserSchema = z.object({
@@ -179,6 +182,14 @@ export const createAppSchema = z.object({
     .trim()
     .min(2, "Informe o nome do aplicativo.")
     .max(60, "Use no máximo 60 caracteres."),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Descreva o aplicativo.")
+    .max(
+      APP_DESCRIPTION_MAX,
+      `Use no máximo ${APP_DESCRIPTION_MAX} caracteres.`,
+    ),
   url: z.string().trim().pipe(httpUrlSchema),
   iconUrl: iconUrlSchema,
   levels: appLevelsSchema,

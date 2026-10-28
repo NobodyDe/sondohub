@@ -10,9 +10,9 @@ export default function AppPreview({
 }: {
   control: Control<CreateAppInput>;
 }) {
-  const [slug, name, url, iconUrl, levels] = useWatch({
+  const [slug, name, url, iconUrl, levels, description] = useWatch({
     control,
-    name: ["slug", "name", "url", "iconUrl", "levels"],
+    name: ["slug", "name", "url", "iconUrl", "levels", "description"],
   });
   // Estado só da prévia: dá para clicar no seletor e ver como fica, sem tocar no formulário.
   const [level, setLevel] = useState<number | null>(1);
@@ -44,6 +44,11 @@ export default function AppPreview({
             <span className="truncate text-xs font-semibold text-muted-foreground">
               {url || "Endereço do aplicativo"}
             </span>
+            {description.trim() && (
+              <p className="text-sm leading-relaxed text-ink-body">
+                {description}
+              </p>
+            )}
           </div>
         </div>
       </div>

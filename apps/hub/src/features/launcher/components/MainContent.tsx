@@ -1,6 +1,10 @@
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Star, GripVertical } from "lucide-react";
 import { cn } from "../../../lib/utils.ts";
 import type { AppView } from "../types/types.ts";
+import { usePreferencesStore } from "@/stores/preferences-store.ts";
+import { DragDropProvider } from "@dnd-kit/react";
+import { useSortable } from "@dnd-kit/react/sortable";
+import { move } from "@dnd-kit/helpers";
 
 type MainContentProps = {
   apps: AppView[];
@@ -8,11 +12,9 @@ type MainContentProps = {
   onToggleFavorite: (slug: string) => void;
 };
 
-export default function MainContent({
-  apps,
-  query,
-  onToggleFavorite,
-}: MainContentProps) {
+export default function MainContent({ apps, query }: MainContentProps) {
+  const setAppOrder = usePreferencesStore((state) => state.setAppOrder);
+  const isFiltering = query.trim() !== "";
   if (apps.length === 0)
     return (
       <EmptyState
@@ -31,26 +33,48 @@ export default function MainContent({
     );
 
   return (
-    <ul className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
-      {visibleApps.map((app) => (
-        <AppCard
-          key={app.slug}
-          app={app}
-          onToggleFavorite={() => onToggleFavorite(app.slug)}
-        />
-      ))}
-    </ul>
+    <DragDropProvider
+      onDragEnd={(event) =>
+        setAppOrder(
+          move(
+            visibleApps.map((app) => app.slug),
+            event,
+          ),
+        )
+      }
+    >
+      <ul className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
+        {visibleApps.map((app, index) => (
+          <AppCard
+            key={app.slug}
+            app={app}
+            index={index}
+            canDrag={!isFiltering}
+          />
+        ))}
+      </ul>
+    </DragDropProvider>
   );
 }
 
-type AppCardProps = {
-  app: AppView;
-  onToggleFavorite: () => void;
-};
+type AppCardProps = { app: AppView; index: number; canDrag: boolean };
 
-function AppCard({ app, onToggleFavorite }: AppCardProps) {
+function AppCard({ app, index, canDrag }: AppCardProps) {
+  const toggleFavorite = usePreferencesStore((state) => state.toggleFavorite);
+  const { ref, handleRef, isDragging } = useSortable({
+    id: app.slug,
+    index,
+    disabled: !canDrag,
+  });
+
   return (
-    <li className="relative flex min-h-44 flex-col gap-4 border border-border bg-sidebar p-5 transition hover:-translate-y-0.5 hover:border-line-hover">
+    <li
+      ref={ref}
+      className={cn(
+        "relative flex min-h-44 flex-col gap-4 border border-border bg-sidebar p-5 transition hover:-translate-y-0.5 hover:border-line-hover",
+        isDragging && "opacity-60",
+      )}
+    >
       <div className="flex items-center gap-3.5">
         <img src={app.iconUrl} alt="" className="size-13 rounded-[14px]" />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -68,8 +92,18 @@ function AppCard({ app, onToggleFavorite }: AppCardProps) {
         <FavoriteButton
           appName={app.name}
           isFavorite={app.isFavorite}
-          onToggle={onToggleFavorite}
+          onToggle={() => toggleFavorite(app.slug)}
         />
+        {canDrag && (
+          <button
+            ref={handleRef}
+            type="button"
+            aria-label={`Reordenar ${app.name}`}
+            className="relative z-10 flex size-9 shrink-0 cursor-grab items-center justify-center rounded-[10px] text-muted-foreground hover:bg-hover-strong"
+          >
+            <GripVertical className="size-[18px]" aria-hidden />
+          </button>
+        )}
       </div>
 
       {app.description && (

@@ -1,6 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createAppSchema, type CreateAppInput } from "@sondohub/contracts";
-import { Controller, useForm } from "react-hook-form";
+import {
+  APP_DESCRIPTION_MAX,
+  createAppSchema,
+  type CreateAppInput,
+} from "@sondohub/contracts";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { Link } from "react-router";
 import Switch from "@/components/Switch.tsx";
 import {
@@ -14,6 +18,7 @@ import { cn } from "@/lib/utils.ts";
 import { conflictOf } from "../app-form.ts";
 import AppPreview from "./AppPreview.tsx";
 import LevelsEditor from "./LevelsEditor.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
 
 type AppFormProps = {
   defaultValues: CreateAppInput;
@@ -36,6 +41,7 @@ export default function AppForm({
     defaultValues,
   });
   const { errors, isSubmitting } = form.formState;
+  const description = useWatch({ control: form.control, name: "description" });
 
   async function submit(input: CreateAppInput) {
     try {
@@ -73,6 +79,7 @@ export default function AppForm({
               />
               <FieldError errors={[errors.name]} />
             </Field>
+
             <Field data-invalid={!!errors.slug}>
               <FieldLabel htmlFor="slug">Identificador</FieldLabel>
               {/* readOnly, não disabled: input disabled sai do submit como undefined e o schema recusa. */}
@@ -93,6 +100,23 @@ export default function AppForm({
                   : "Letras minúsculas, números e hífen. Não muda depois."}
               </FieldDescription>
               <FieldError errors={[errors.slug]} />
+            </Field>
+            <Field data-invalid={!!errors.description}>
+              <FieldLabel htmlFor="description">Descrição</FieldLabel>
+              <Textarea
+                id="description"
+                rows={3}
+                maxLength={APP_DESCRIPTION_MAX}
+                placeholder="Ex.: Plataforma de monitoramento inteligente"
+                aria-invalid={!!errors.description}
+                className="resize-none rounded-[10px] bg-background"
+                {...form.register("description")}
+              />
+              <FieldDescription>
+                {description.length}/{APP_DESCRIPTION_MAX} caracteres. Aparece
+                no card do launcher.
+              </FieldDescription>
+              <FieldError errors={[errors.description]} />
             </Field>
           </div>
         </section>
