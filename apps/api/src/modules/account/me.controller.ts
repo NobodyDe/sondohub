@@ -5,8 +5,6 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
-  Param,
-  ParseUUIDPipe,
   Patch,
   Res,
   UseGuards,
@@ -21,8 +19,8 @@ import { CurrentAuth } from '../../common/auth/current-auth.decorator.js';
 import { SessionGuard } from '../../common/auth/session.guard.js';
 import { ZodValidationPipe } from '../../common/auth/zod-validation.pipe.js';
 import { AppsRepository } from '../apps/apps.repository.js';
+import { AvatarService } from '../avatar/avatar.service.js';
 import { clearSessionCookie } from '../sessions/session-cookie.js';
-import { SessionsService } from '../sessions/sessions.service.js';
 import { UsersRepository } from '../users/users.repository.js';
 
 @Controller('me')
@@ -31,7 +29,7 @@ export class MeController {
   constructor(
     private readonly apps: AppsRepository,
     private readonly users: UsersRepository,
-    private readonly sessions: SessionsService,
+    private readonly avatar: AvatarService,
   ) {}
 
   /** Quem é o usuário desta sessão. */
@@ -71,35 +69,8 @@ export class MeController {
       throw new ForbiddenException(
         'O Master não pode excluir a própria conta.',
       );
+    await this.avatar.remove(auth.user.id); // a foto sai antes: sem usuário, ninguém mais aponta para ela
     await this.users.delete(auth.user.id);
-    clearSessionCookie(res);
-  }
-
-  @Get('sessions')
-  async mySessions(@CurrentAuth() auth: AuthContext) {
-    const sessions = await this.sessions.listActive(auth.user.id);
-    return sessions.map((session) => ({
-      ...session,
-      isCurrent: session.id === auth.sessionId,
-    }));
-  }
-
-  @Delete('sessions/:id')
-  @HttpCode(204)
-  revokeSession(
-    @CurrentAuth() auth: AuthContext,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
-    return this.sessions.revokeOwn(auth.user.id, id);
-  }
-
-  @Delete('sessions')
-  @HttpCode(204)
-  async revokeAllSessions(
-    @CurrentAuth() auth: AuthContext,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    await this.sessions.revokeAll(auth.user.id);
     clearSessionCookie(res);
   }
 }

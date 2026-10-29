@@ -151,6 +151,17 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
+  /* Listras do logo subindo (tela de login) */
+  --animate-stripe-rise: stripe-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  @keyframes stripe-rise {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

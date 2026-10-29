@@ -1,6 +1,7 @@
 import type { MyProfile } from "@sondohub/contracts";
 import UserAvatar from "@/components/UserAvatar.tsx";
 import { formatDateTime } from "../format-date.ts";
+import AvatarActions from "./AvatarActions.tsx";
 
 export default function ProfileHeader({ profile }: { profile: MyProfile }) {
   return (
@@ -23,15 +24,7 @@ export default function ProfileHeader({ profile }: { profile: MyProfile }) {
         <span className="text-xs text-muted-foreground">
           Perfil atualizado em {formatDateTime(profile.updatedAt)}
         </span>
-        {/* Upload da foto vem depois (Azure Blob). */}
-        <button
-          type="button"
-          disabled
-          title="Em breve"
-          className="mt-1 self-start text-sm font-semibold text-link disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Trocar foto
-        </button>
+        <AvatarActions hasPhoto={profile.avatarUrl !== null} />
       </div>
     </header>
   );

@@ -8,6 +8,8 @@ const envSchema = z.object({
   COOKIE_SECURE: z.stringbool(),
   JWT_KEY_ID: z.string().min(1),
   JWT_PRIVATE_KEY: z.string().min(1),
+  AZURE_STORAGE_CONNECTION_STRING: z.string().min(1),
+  AZURE_STORAGE_CONTAINER: z.string().min(1),
 });
 
 export const env = envSchema.parse(process.env);
