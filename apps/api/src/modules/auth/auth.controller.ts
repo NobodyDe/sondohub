@@ -1,12 +1,31 @@
-import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import type { LoginInput } from '@sondohub/contracts';
 import type { Request, Response } from 'express';
-import { setSessionCookie } from '../sessions/session-cookie.js';
+import {
+  clearSessionCookie,
+  setSessionCookie,
+} from '../sessions/session-cookie.js';
 import { AuthService } from './auth.service.js';
+import { SessionGuard } from '../../common/auth/session.guard.js';
+import { CurrentAuth } from '../../common/auth/current-auth.decorator.js';
+import type { AuthContext } from '../../common/auth/auth-context.js';
+
+import { SessionsService } from '../sessions/sessions.service.js';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly sessions: SessionsService,
+  ) {}
 
   @Post('login')
   @HttpCode(200)
@@ -21,5 +40,15 @@ export class AuthController {
     });
     setSessionCookie(res, token);
     return user;
+  }
+  @Post('logout')
+  @HttpCode(204)
+  @UseGuards(SessionGuard)
+  async logout(
+    @CurrentAuth() auth: AuthContext,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.sessions.revoke(auth.sessionId);
+    clearSessionCookie(res);
   }
 }

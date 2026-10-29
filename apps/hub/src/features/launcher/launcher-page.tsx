@@ -10,11 +10,6 @@ import type { LauncherApp } from "@sondohub/contracts";
 import type { AppView } from "./types/types.ts";
 import { usePreferencesStore } from "../../stores/preferences-store.ts";
 
-async function logout() {
-  await hubApi.logout();
-  location.assign("/login");
-}
-
 type AppDetails = Pick<AppView, "category">;
 
 // Provisório: sai daqui quando o contrato LauncherApp trouxer a categoria.
@@ -72,7 +67,7 @@ export function LauncherPage() {
 
       <main className="min-w-0 flex-1 px-6 pt-10 pb-16 md:px-12">
         <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
-          <Header query={query} onQueryChange={setQuery} onLogout={logout} />
+          <Header query={query} onQueryChange={setQuery} />
 
           {apps.isPending && (
             <p className="text-muted-foreground">Carregando aplicativos…</p>

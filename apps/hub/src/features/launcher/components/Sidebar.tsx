@@ -11,6 +11,7 @@ import { NavLink } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import { cn } from "../../../lib/utils.ts";
 import AccountMenu from "./AccountMenu.tsx";
+import { hubApi } from "@/lib/api.ts";
 
 type NavItem = { to: string; label: string; icon: LucideIcon };
 
