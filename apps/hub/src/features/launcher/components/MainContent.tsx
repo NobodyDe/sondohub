@@ -9,7 +9,6 @@ import { move } from "@dnd-kit/helpers";
 type MainContentProps = {
   apps: AppView[];
   query: string;
-  onToggleFavorite: (slug: string) => void;
 };
 
 export default function MainContent({ apps, query }: MainContentProps) {

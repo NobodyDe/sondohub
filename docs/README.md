@@ -24,6 +24,7 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | 10 | [Tela do usuário no admin](10-aula-admin-usuario.md) | `GET /api/admin/users/:id` com todos os apps, níveis e `hasAccess`; editar cargo, ativo e acesso aos apps; remover usuário |
 | 11 | [Criar usuário](11-aula-criar-usuario.md) | `POST /api/admin/users` só para Master (o `MasterGuard` explicado), com cargo e apps numa transação, e a tela de novo usuário funcionando |
 | 12 | [Catálogo de aplicativos](12-aula-admin-apps.md) | `GET/POST /api/admin/apps` e `GET/PUT /api/admin/apps/:id` (origem e ícone padrão saem da URL, níveis como escada), a tela do catálogo com prévia ao vivo e o fim do `FAKE_APPS` |
+| 13 | [Deploy em Docker](../deploy/README.md) | O hub e a API 24/7 em `https://hub.sondotecnica.com`, ao lado do outro projeto da VM, com deploy em um comando a partir do PC |
 
 ## Formato de cada aula
 

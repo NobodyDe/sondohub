@@ -1,0 +1,58 @@
+# Produção do SondoHub. Na VM ficam só este arquivo e o .env, numa pasta (ex.: /opt/sondohub).
+# O docker-compose.yml da raiz continua sendo só o Postgres do dev.
+# Nome próprio: o compose da raiz já é o projeto "sondohub", e dividir o nome misturaria os containers.
+name: sondohub-prod
+
+# Sem limite, o log de um container cresce até lotar o disco da VM (que é dividida com outro projeto).
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # Roda uma vez a cada "up": aplica as migrations que faltam e termina. A api só sobe se ele der certo.
+  migrate:
+    image: ghcr.io/nobodyde/sondohub-api:latest
+    command: ["node_modules/.bin/prisma", "migrate", "deploy"]
+    env_file: .env
+    logging: *logging
+
+  api:
+    image: ghcr.io/nobodyde/sondohub-api:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: api
+    env_file: .env
+    environment:
+      API_PORT: 3100 # porta interna da rede do Docker; ninguém de fora a enxerga
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped # é o que faz o papel do PM2: volta se cair e quando a VM reinicia
+    healthcheck:
+      # A imagem slim não tem curl; o fetch do próprio Node resolve. O JWKS é público e não depende do banco.
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3100/api/.well-known/jwks.json').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+    logging: *logging
+
+  hub:
+    image: ghcr.io/nobodyde/sondohub-hub:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: hub
+    ports:
+      # 127.0.0.1 = só o nginx do host alcança. Com "8080:80", o Docker abriria a porta para a
+      # internet passando por cima do firewall (ufw), e daria para acessar o hub sem HTTPS.
+      # Se a 8080 já estiver em uso na VM, troque aqui e no nginx/hub.sondotecnica.com.conf.
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    logging: *logging

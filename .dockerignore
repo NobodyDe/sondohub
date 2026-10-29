@@ -1,0 +1,14 @@
+# O Docker instala e compila tudo do zero dentro da imagem: nada do seu PC entra.
+**/node_modules
+**/dist
+**/coverage
+**/*.log
+
+# O .tsbuildinfo diz ao tsc "já compilei isto". Sem o dist/ junto, ele não emite nada e a imagem sai vazia.
+**/*.tsbuildinfo
+
+# Segredos nunca vão para dentro da imagem: eles chegam pelo .env do servidor, na hora de rodar.
+**/.env
+
+.git
+docs
