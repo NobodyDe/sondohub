@@ -1,5 +1,5 @@
 import type { HubProfile } from "@sondohub/contracts";
-import { Moon, Settings, Sun, UserRound } from "lucide-react";
+import { LogOut, Moon, Settings, Sun, UserRound } from "lucide-react";
 import { Link } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import {
@@ -10,8 +10,21 @@ import {
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu.tsx";
 import { useThemeStore } from "../../../stores/theme-store.ts";
+import { hubApi } from "@/lib/api.ts";
 
-export default function AccountMenu({ profile }: { profile: HubProfile }) {
+export type AccountMenuProps = {
+  profile: HubProfile;
+};
+
+async function logout() {
+  try {
+    await hubApi.logout();
+  } finally {
+    location.reload();
+  }
+}
+
+export default function AccountMenu({ profile }: AccountMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -44,6 +57,11 @@ export default function AccountMenu({ profile }: { profile: HubProfile }) {
         <DropdownMenuSeparator />
 
         <ThemeToggleItem />
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem variant="destructive" onClick={logout}>
+          <LogOut /> Sair
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,14 +1,12 @@
-import { LogOut, Search } from "lucide-react";
-import { Button } from "../../../components/ui/button.tsx";
+import { Search } from "lucide-react";
 import { Input } from "../../../components/ui/input.tsx";
 
 type HeaderProps = {
   query: string;
   onQueryChange: (query: string) => void;
-  onLogout: () => void;
 };
 
-export default function Header({ query, onQueryChange, onLogout }: HeaderProps) {
+export default function Header({ query, onQueryChange }: HeaderProps) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-5">
       <div className="flex flex-col gap-2">
@@ -33,10 +31,6 @@ export default function Header({ query, onQueryChange, onLogout }: HeaderProps) 
             className="h-11 rounded-xl bg-card pl-10"
           />
         </label>
-        <Button variant="ghost" className="h-11 px-3" onClick={onLogout}>
-          <LogOut aria-hidden />
-          Sair
-        </Button>
       </div>
     </header>
   );
