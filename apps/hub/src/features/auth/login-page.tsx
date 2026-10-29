@@ -1,9 +1,12 @@
-import { GalleryVerticalEnd } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router";
+import { Button } from "@/components/ui/button";
+import { hubApi } from "@/lib/api.ts";
+import { useThemeStore } from "@/stores/theme-store.ts";
+import { BrandPanel } from "./brand-panel.tsx";
 import { LoginForm } from "./login-form.tsx";
 import { safeReturnTo } from "./safe-return-to.ts";
-import { ApiError, hubApi } from "@/lib/api.ts";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
 
 async function continueTo(returnTo: string | null) {
   const target = safeReturnTo(returnTo, await hubApi.myApps());
@@ -13,8 +16,6 @@ async function continueTo(returnTo: string | null) {
 export function LoginPage() {
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   // Já tem sessão? Não pede a senha de novo: segue direto para onde ia.
   useEffect(() => {
@@ -24,51 +25,33 @@ export function LoginPage() {
     );
   }, [returnTo]);
 
-  async function handleSubmit(event: Form<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-
-    setSubmitting(true);
-    setError("");
-    try {
-      await hubApi.login({
-        email: String(form.get("email")),
-        password: String(form.get("password")),
-      });
-      await continueTo(returnTo);
-    } catch (err) {
-      setError(
-        err instanceof ApiError && err.status === 401
-          ? "Email ou senha inválidos."
-          : "Não foi possível entrar. Tente de novo.",
-      );
-      setSubmitting(false);
-    }
-  }
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="/" className="flex items-center gap-2 font-medium">
-            <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <GalleryVerticalEnd className="size-4" />
-            </div>
-            SondoHub
-          </a>
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <LoginForm />
-          </div>
-        </div>
-      </div>
-      <div className="relative hidden bg-muted lg:block">
-        <img
-          src="/placeholder.svg"
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
-      </div>
+    <div className="flex min-h-svh flex-col lg:flex-row">
+      <BrandPanel />
+      <main className="relative flex flex-1 items-start justify-center px-6 pt-20 pb-12 lg:min-h-svh lg:items-center lg:px-10 lg:py-12">
+        <ThemeToggle />
+        <LoginForm className="w-full max-w-[400px]" onSuccess={() => continueTo(returnTo)} />
+      </main>
     </div>
+  );
+}
+
+function ThemeToggle() {
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
+  const isDark = theme === "dark";
+  const label = isDark ? "Ativar modo claro" : "Ativar modo escuro";
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      className="absolute top-5 right-5 size-11 rounded-[10px] lg:top-6 lg:right-6 [&_svg:not([class*='size-'])]:size-5"
+      aria-label={label}
+      title={label}
+      onClick={toggleTheme}
+    >
+      {isDark ? <Sun /> : <Moon />}
+    </Button>
   );
 }

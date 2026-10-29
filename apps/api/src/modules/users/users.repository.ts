@@ -173,4 +173,12 @@ export class UsersRepository {
       select: profileSelect,
     });
   }
+  /** null remove a foto. O trigger atualiza o updated_at. */
+  setAvatar(id: string, avatarUrl: string | null) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { avatarUrl },
+      select: profileSelect,
+    });
+  }
 }

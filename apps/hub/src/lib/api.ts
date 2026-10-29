@@ -29,7 +29,10 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
     ...init,
-    headers: { "Content-Type": "application/json" },
+    headers:
+      init?.body instanceof FormData
+        ? undefined // o navegador monta o multipart com o boundary
+        : { "Content-Type": "application/json" },
   });
   // Corpo de erro é opcional: um 502 do proxy pode nem ser JSON.
   if (!response.ok)
@@ -93,4 +96,10 @@ export const hubApi = {
     request<void>(`/me/sessions/${id}`, { method: "DELETE" }),
   revokeAllMySessions: () =>
     request<void>("/me/sessions", { method: "DELETE" }),
+  uploadMyAvatar: (image: Blob) => {
+    const body = new FormData();
+    body.append("file", image, "avatar.jpg");
+    return request<MyProfile>("/me/avatar", { method: "PUT", body });
+  },
+  removeMyAvatar: () => request<MyProfile>("/me/avatar", { method: "DELETE" }),
 };
