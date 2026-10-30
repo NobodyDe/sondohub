@@ -26,11 +26,14 @@ export function LoginPage() {
   }, [returnTo]);
 
   return (
-    <div className="flex min-h-svh flex-col lg:flex-row">
+    <div className="flex min-h-svh flex-col lg:h-svh lg:flex-row">
       <BrandPanel />
-      <main className="relative flex flex-1 items-start justify-center px-6 pt-20 pb-12 lg:min-h-svh lg:items-center lg:px-10 lg:py-12">
+      <main className="relative flex flex-1 items-start justify-center px-6 pt-20 pb-12 lg:items-center-safe lg:overflow-y-auto lg:px-10 lg:py-12">
         <ThemeToggle />
-        <LoginForm className="w-full max-w-[400px]" onSuccess={() => continueTo(returnTo)} />
+        <LoginForm
+          className="w-full max-w-[400px]"
+          onSuccess={() => continueTo(returnTo)}
+        />
       </main>
     </div>
   );

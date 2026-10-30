@@ -33,7 +33,13 @@ services:
     restart: unless-stopped # é o que faz o papel do PM2: volta se cair e quando a VM reinicia
     healthcheck:
       # A imagem slim não tem curl; o fetch do próprio Node resolve. O JWKS é público e não depende do banco.
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3100/api/.well-known/jwks.json').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3100/api/.well-known/jwks.json').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -51,7 +57,7 @@ services:
       # 127.0.0.1 = só o nginx do host alcança. Com "8080:80", o Docker abriria a porta para a
       # internet passando por cima do firewall (ufw), e daria para acessar o hub sem HTTPS.
       # Se a 8080 já estiver em uso na VM, troque aqui e no nginx/hub.sondotecnica.com.conf.
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:2020:80"
     depends_on:
       - api
     restart: unless-stopped

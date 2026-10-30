@@ -25,6 +25,9 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | 11 | [Criar usuário](11-aula-criar-usuario.md) | `POST /api/admin/users` só para Master (o `MasterGuard` explicado), com cargo e apps numa transação, e a tela de novo usuário funcionando |
 | 12 | [Catálogo de aplicativos](12-aula-admin-apps.md) | `GET/POST /api/admin/apps` e `GET/PUT /api/admin/apps/:id` (origem e ícone padrão saem da URL, níveis como escada), a tela do catálogo com prévia ao vivo e o fim do `FAKE_APPS` |
 | 13 | [Deploy em Docker](../deploy/README.md) | O hub e a API 24/7 em `https://hub.sondotecnica.com`, ao lado do outro projeto da VM, com deploy em um comando a partir do PC |
+| 14 | [SDK publicado e as portas do Gêmeo](14-aula-sdk-publicado-e-portas-do-gemeo.md) | Os pacotes `@sondohub/*` no GitHub Packages (org `sondohub`), o Gêmeo instalando por versão, e o back dele sem nenhuma rota aberta: pessoas pelo hub ou login próprio, máquinas com chave |
+| 15 | ["Entrar com SondoHub" no Gêmeo](15-aula-entrar-com-sondohub.md) | O botão na tela de login do Gêmeo que vai ao login do hub e volta logado: como cada peça funciona e o que ligar em produção |
+| 16 | [Pipeline de CI/CD](16-aula-ci-cd.md) | Todo push na `main` passa por build, lint e teste e, se passar, vai sozinho para produção com o mesmo `deploy.ps1` |
 
 ## Formato de cada aula
 

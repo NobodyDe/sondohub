@@ -37,7 +37,7 @@ export function BrandPanel() {
   return (
     <section
       aria-labelledby="hub-title"
-      className="relative flex flex-col justify-between gap-7 overflow-hidden bg-g-deep px-6 pt-7 pb-9 text-white lg:min-h-svh lg:flex-[1.3_1_0%] lg:gap-10 lg:px-16 lg:py-12"
+      className="relative flex flex-col justify-between gap-7 overflow-hidden bg-g-deep px-6 pt-7 pb-9 text-white lg:flex-[1.3_1_0%] lg:gap-10 lg:px-16 lg:py-12"
     >
       {/* O "S" grande saindo da borda; as listras sobem uma a uma ao abrir. */}
       <SondoMark
@@ -75,7 +75,7 @@ export function BrandPanel() {
         </p>
       </div>
 
-      <div className="relative hidden max-w-[480px] flex-col gap-7 lg:flex">
+      <div className="relative hidden max-w-[480px] flex-col gap-7 lg:[@media(min-height:55rem)]:flex">
         <div>
           <h2 className="mb-2 text-sm font-semibold text-white/80">
             Aplicações disponíveis
