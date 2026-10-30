@@ -268,6 +268,34 @@ Os itens 1, 3, 4, 5 e 6 já foram testados localmente com estas mesmas imagens: 
 
 ---
 
+## 🔄 Subir uma mudança
+
+O `deploy.ps1` compila **o que está na sua pasta**, não o que está no git: uma alteração que você não commitou vai para produção do mesmo jeito. Por isso o deploy sai sempre da `main` atualizada e limpa:
+
+```powershell
+git switch main
+git pull
+git status   # tem que dizer "nothing to commit, working tree clean"
+.\deploy\deploy.ps1 -Server usuario@ip-da-vm
+```
+
+Assim, o que roda na VM é sempre um commit que existe no GitHub, e voltar de versão é só fazer o deploy do commit anterior.
+
+| Mudei… | Como chega na VM |
+|---|---|
+| Código da api, do hub ou do `@sondohub/contracts` | `deploy.ps1`. O `up -d` recria só os containers cuja imagem mudou |
+| O `schema.prisma` | `pnpm db:migrate` no **Postgres do Docker** gera a migration em `prisma/migrations/`. Ela vai no commit e na imagem, e o `migrate` aplica no Azure durante o deploy. Antes, faça o backup do schema (aula 09, "Regras que valem para sempre"), principalmente se a migration apagar ou alterar uma coluna |
+| O `docker-compose.yml` | `deploy.ps1`: o `scp` do script já copia o arquivo |
+| O `deploy/.env` | O script **não** copia o `.env`: `scp` + `chmod 600` (B3), depois `docker compose up -d` na VM |
+| O nginx do host | `scp` + `nginx -t` + `reload` (B6) |
+| Um app no catálogo, um usuário | Nada para subir: é dado e já está no banco. Faça no admin de produção (e `docker compose restart api` se for app) |
+
+> ⚠️ **Nunca rode `pnpm db:migrate` com o `.env` apontando para o Azure.** O `migrate dev` foi feito para banco descartável: ele precisa de um banco "sombra" e, se encontrar diferença entre o banco e as migrations, oferece um reset que apaga todos os dados. No Azure, só o `migrate deploy`.
+
+Durante o `up -d`, a api fica alguns segundos fora do ar (o nginx responde `502`) enquanto a nova sobe. Para um hub interno e provisório, isso é aceitável. Deploy sem nenhuma queda exigiria duas réplicas da api atrás de um balanceador, uma complexidade que não se paga aqui.
+
+---
+
 ## 🔁 Operação do dia a dia
 
 Na VM, em `/opt/sondohub`:
@@ -285,8 +313,6 @@ Na VM, em `/opt/sondohub`:
 **Por que dois comandos diferentes?** O `restart` reaproveita o container com as variáveis antigas: serve para a API reler o banco, não para pegar um `.env` novo. Já o `up -d` só recria o container quando a configuração mudou: depois de um cadastro de app ele não faz nada.
 
 **Voltar para a versão anterior:** no PC, `git checkout <commit-bom>` e rode o `deploy.ps1` de novo. A imagem é recompilada a partir daquele commit.
-
-**Mudou o schema do banco?** O `migrate` aplica a migration sozinho no deploy. Antes, faça o backup do schema (aula 09, "Regras que valem para sempre"), principalmente se a migration apagar ou alterar uma coluna.
 
 ---
 
@@ -308,9 +334,10 @@ Não há dados para migrar: banco e avatares estão no Azure, e as sessões cont
 
 | Sintoma | Causa | Solução |
 |---|---|---|
+| `no configuration file provided: not found` na VM | O `deploy.ps1` parou antes do `scp`, então só existe o `.env` em `/opt/sondohub` (ou você não está nessa pasta) | `ls -la /opt/sondohub`. Sem o `docker-compose.yml`, rode o `deploy.ps1` de novo e veja em qual etapa ele para |
 | `502 Bad Gateway` no site | A api não subiu | `docker compose logs api`. Se for o `.env`, o zod diz qual variável está faltando ou inválida |
 | `migrate` com `Exited (1)` e `P1001` | O IP da VM não está liberado no Azure | B5 |
-| `migrate` com `P1000` | Senha errada, ou com `@`/`#` sem codificar | `[uri]::EscapeDataString` (A4) |
+| `migrate` com `P1000` | Senha errada, com `@`/`#` sem codificar, ou o `DATABASE_URL` ainda com os `<usuario>`/`<senha-codificada>`/`<banco>` do exemplo | `[uri]::EscapeDataString` (A4), depois copie o `.env` de novo (B3) |
 | `denied` ou `unauthorized` no `pull` | Faltou o `docker login` na VM, ou o token não tem `read:packages` | B4 |
 | `exec format error` | Imagem `amd64` numa VM ARM | A1 |
 | O login dá certo, mas volta para `/login` | Acesso por `http://` ou pelo IP: o cookie `__Host-` exige HTTPS | Use sempre `https://hub.sondotecnica.com` |
