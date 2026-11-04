@@ -28,6 +28,7 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | 14 | [SDK publicado e as portas do Gêmeo](14-aula-sdk-publicado-e-portas-do-gemeo.md) | Os pacotes `@sondohub/*` no GitHub Packages (org `sondohub`), o Gêmeo instalando por versão, e o back dele sem nenhuma rota aberta: pessoas pelo hub ou login próprio, máquinas com chave |
 | 15 | ["Entrar com SondoHub" no Gêmeo](15-aula-entrar-com-sondohub.md) | O botão na tela de login do Gêmeo que vai ao login do hub e volta logado: como cada peça funciona e o que ligar em produção |
 | 16 | [Pipeline de CI/CD](16-aula-ci-cd.md) | Todo push na `main` passa por build, lint e teste e, se passar, vai sozinho para produção com o mesmo `deploy.ps1` |
+| 17 | [Os níveis do Gêmeo viram os papéis dele](17-aula-niveis-do-gemeo.md) | O card do Gêmeo com Usuário, Administrador e Master (migration de dados), o `GemeoClient` traduzindo nível em `role` e o envio, uma vez só, de quem já tinha acesso |
 
 ## Formato de cada aula
 

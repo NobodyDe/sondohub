@@ -4,12 +4,12 @@ import { AdminUsersController } from './admin-users.controller.js';
 import { UsersRepository } from './users.repository.js';
 import { AdminUsersService } from './admin-users.service.js';
 import { AppsModule } from '../apps/apps.module.js';
-import { GemeoClient } from './gemeo-client.js';
+import { GemeoModule } from '../gemeo/gemeo.module.js';
 
 @Module({
-  imports: [SessionsModule, AppsModule],
+  imports: [SessionsModule, AppsModule, GemeoModule],
   controllers: [AdminUsersController],
-  providers: [UsersRepository, AdminUsersService, GemeoClient],
+  providers: [UsersRepository, AdminUsersService],
   exports: [UsersRepository],
 })
 export class UsersModule {}
