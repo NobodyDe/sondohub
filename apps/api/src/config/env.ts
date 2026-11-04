@@ -10,6 +10,7 @@ const envSchema = z.object({
   JWT_PRIVATE_KEY: z.string().min(1),
   AZURE_STORAGE_CONNECTION_STRING: z.string().min(1),
   AZURE_STORAGE_CONTAINER: z.string().min(1),
+  GDS_APY_KEY: z.string().min(1),
 });
 
 export const env = envSchema.parse(process.env);

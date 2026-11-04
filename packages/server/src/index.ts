@@ -50,8 +50,11 @@ export function sondoAuth(options: SondoAuthOptions): RequestHandler {
     try {
       req.sondoUser = await verifyAccessToken(token);
       next();
-    } catch {
-      res.sendStatus(401); // assinatura inválida, expirado, aud errado...
+    } catch (error) {
+      // O cliente só recebe o 401, mas o log precisa do motivo: iss/aud errado,
+      // kid desconhecido e hub inacessível ("fetch failed") têm correções diferentes.
+      console.warn(`[sondoAuth] token recusado (hubUrl=${options.hubUrl}):`, error);
+      res.sendStatus(401);
     }
   };
 }
