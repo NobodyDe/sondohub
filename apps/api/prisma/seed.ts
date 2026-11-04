@@ -44,9 +44,11 @@ const demo = await upsertApp('demo', 'App Demo', `http://localhost:${process.env
   { level: 3, label: 'Admin' },
 ]);
 
+// Os 3 papéis do Gêmeo: o GemeoClient traduz 1 → USER, 2 → ADMIN, 3 → MASTER.
 const gemeo = await upsertApp('gemeo', 'Gêmeo Digital', 'http://localhost:5173', [
-  { level: 1, label: 'Leitura' },
-  { level: 2, label: 'Gestor' },
+  { level: 1, label: 'Usuário' },
+  { level: 2, label: 'Administrador' },
+  { level: 3, label: 'Master' },
 ]);
 
 const master = await upsertUser(masterEmail, 'Master', 'MASTER');

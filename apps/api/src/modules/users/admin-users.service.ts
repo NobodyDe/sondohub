@@ -14,7 +14,7 @@ import type {
   UpdateUserInput,
 } from '@sondohub/contracts';
 import { AppsRepository } from '../apps/apps.repository.js';
-import { GEMEO_SLUG, GemeoClient } from './gemeo-client.js';
+import { GEMEO_SLUG, GemeoClient } from '../gemeo/gemeo-client.js';
 import { UsersRepository } from './users.repository.js';
 
 // Liberar: Gêmeo ANTES do banco. Se ele falhar, nada foi salvo e o Master só repete a ação;
@@ -46,8 +46,8 @@ export class AdminUsersService {
     const access = await this.resolveAccess(apps);
     const passwordHash = await argon2.hash(password);
     const id = randomUUID(); // gerado aqui, e não no banco, porque o Gêmeo precisa dele antes do insert.
-    if (apps.some((app) => app.slug === GEMEO_SLUG))
-      await this.gemeo.upsertUser(id, data.role);
+    const gemeoGrant = apps.find((app) => app.slug === GEMEO_SLUG);
+    if (gemeoGrant) await this.gemeo.upsertUser(id, gemeoGrant.level);
 
     await this.users.create({ ...data, id, passwordHash }, access);
     return this.getDetail(id);
@@ -59,11 +59,7 @@ export class AdminUsersService {
     input: UpdateUserInput,
   ): Promise<AdminUserDetail> {
     assertNotSelf(actorId, id);
-    const user = await this.getDetail(id); // 404 claro, em vez do erro do Prisma ao atualizar quem não existe.
-    // Só quando o cargo muda de fato: desativar alguém não pode depender do Gêmeo estar no ar.
-    if (input.role && input.role !== user.role && hasGemeoAccess(user))
-      await this.gemeo.upsertUser(id, input.role);
-
+    await this.getDetail(id); // 404 claro, em vez do erro do Prisma ao atualizar quem não existe.
     await this.users.update(id, input);
     return this.getDetail(id);
   }
@@ -73,10 +69,10 @@ export class AdminUsersService {
     slug: string,
     level: number,
   ): Promise<AdminUserDetail> {
-    const user = await this.getDetail(id); // sem isso, um id inexistente estoura a chave estrangeira (500).
+    await this.getDetail(id); // sem isso, um id inexistente estoura a chave estrangeira (500).
     const app = await this.findApp(slug);
     assertLevelExists(app.levels as AppLevel[], level);
-    if (slug === GEMEO_SLUG) await this.gemeo.upsertUser(id, user.role);
+    if (slug === GEMEO_SLUG) await this.gemeo.upsertUser(id, level);
 
     await this.users.upsertAccess(id, app.id, level);
     return this.getDetail(id);

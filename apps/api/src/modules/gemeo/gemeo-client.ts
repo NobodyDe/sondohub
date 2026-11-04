@@ -1,20 +1,40 @@
-import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
-import type { UserRole } from '@sondohub/contracts';
+import {
+  BadGatewayException,
+  BadRequestException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { env } from '../../config/env.js';
 
 /** Slug do Gêmeo Digital na tabela applications. */
 export const GEMEO_SLUG = 'gemeo';
 
-const GEMEO_USERS_URL = 'https://gds-techlab.sondotecnica.com/users';
+// Não é /users: no nginx da VM, /users é do ChirpStack, que responde 200 com HTML para qualquer método.
+const GEMEO_USERS_URL = 'https://gds-techlab.sondotecnica.com/sondohub/users';
 const TIMEOUT_MS = 5_000; // sem limite, um Gêmeo travado prenderia a tela do painel junto.
+
+/** Os papéis que a rota do Gêmeo aceita. Têm o mesmo nome do cargo do hub, mas são do Gêmeo. */
+type GemeoRole = 'USER' | 'ADMIN' | 'MASTER';
+
+/** Nível do app gemeo (applications.levels) → role do Gêmeo. Número maior = mais permissão, dos dois lados. */
+const ROLE_BY_LEVEL: Record<number, GemeoRole | undefined> = {
+  1: 'USER',
+  2: 'ADMIN',
+  3: 'MASTER',
+};
 
 /** O Gêmeo guarda os usuários do hub numa tabela própria (usuarios_sondohub) para ligá-los a contratos. */
 @Injectable()
 export class GemeoClient {
   private readonly logger = new Logger(GemeoClient.name);
 
-  /** O PUT do Gêmeo é upsert: cria o usuário ou troca o role. Chamar duas vezes dá o mesmo resultado. */
-  async upsertUser(id: string, role: UserRole): Promise<void> {
+  /** Traduz o nível do hub para o role do Gêmeo. O PUT dele é upsert: cria o usuário ou troca o role. */
+  async upsertUser(id: string, level: number): Promise<void> {
+    const role = ROLE_BY_LEVEL[level];
+    // O painel de apps deixa criar um 4º nível; sem papel equivalente, o Gêmeo recusaria com 400.
+    if (!role)
+      throw new BadRequestException('Esse nível não existe no Gêmeo Digital.');
+
     if (!(await this.send('PUT', id, { role })))
       throw new BadGatewayException(
         'O Gêmeo Digital não respondeu. Nada foi salvo; tente de novo.',
@@ -35,8 +55,9 @@ export class GemeoClient {
     id: string,
     body?: object,
   ): Promise<boolean> {
+    const url = `${GEMEO_USERS_URL}/${id}`;
     try {
-      const response = await fetch(`${GEMEO_USERS_URL}/${id}`, {
+      const response = await fetch(url, {
         method,
         headers: {
           'content-type': 'application/json',
@@ -49,7 +70,7 @@ export class GemeoClient {
         throw new Error(`HTTP ${response.status}: ${await response.text()}`);
       return true;
     } catch (error) {
-      this.logger.error(`${method} /users/${id} falhou`, error);
+      this.logger.error(`${method} ${url} falhou`, error);
       return false;
     }
   }
