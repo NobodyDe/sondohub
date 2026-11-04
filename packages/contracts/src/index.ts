@@ -235,3 +235,9 @@ export type MySession = {
   createdAt: string;
   isCurrent: boolean;
 };
+
+/** Body de POST /api/gemeo/users/lookup. 100 por chamada; quem precisar de mais divide em partes. */
+export const userLookupSchema = z.object({
+  ids: z.array(z.uuid()).min(1).max(100),
+});
+export type UserLookupInput = z.infer<typeof userLookupSchema>;

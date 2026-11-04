@@ -4,4 +4,4 @@ coverage
 .env
 *.log
 .DS_Store
-docs
+docs*.tsbuildinfo
