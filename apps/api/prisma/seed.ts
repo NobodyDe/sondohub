@@ -22,11 +22,11 @@ function upsertUser(email: string, name: string, role: UserRole) {
 }
 
 // O origin é a identidade do app no hub (CORS e emissão do token), por isso sai da mesma URL.
-function upsertApp(slug: string, name: string, url: string, levels: Level[]) {
+function upsertApp(slug: string, name: string, description: string, url: string, levels: Level[]) {
   return prisma.application.upsert({
     where: { slug },
     update: {},
-    create: { slug, name, url, origin: url, iconUrl: `${url}/favicon.svg`, levels },
+    create: { slug, name, description, url, origin: url, iconUrl: `${url}/favicon.svg`, levels },
   });
 }
 
@@ -38,14 +38,14 @@ function grantAccess(userId: string, applicationId: string, level: number) {
   });
 }
 
-const demo = await upsertApp('demo', 'App Demo', `http://localhost:${process.env.DEMO_PORT}`, [
+const demo = await upsertApp('demo', 'App Demo', 'App de exemplo do SSO', `http://localhost:${process.env.DEMO_PORT}`, [
   { level: 1, label: 'Leitura' },
   { level: 2, label: 'Edição' },
   { level: 3, label: 'Admin' },
 ]);
 
 // Os 3 papéis do Gêmeo: o GemeoClient traduz 1 → USER, 2 → ADMIN, 3 → MASTER.
-const gemeo = await upsertApp('gemeo', 'Gêmeo Digital', 'http://localhost:5173', [
+const gemeo = await upsertApp('gemeo', 'Gêmeo Digital', 'Gêmeo digital do Hotel Fairmont', 'http://localhost:5173', [
   { level: 1, label: 'Usuário' },
   { level: 2, label: 'Administrador' },
   { level: 3, label: 'Master' },

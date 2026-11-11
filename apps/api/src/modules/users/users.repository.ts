@@ -112,6 +112,21 @@ export class UsersRepository {
     return user !== null;
   }
 
+  findByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+      select: safeUserSelect,
+    });
+  }
+
+  /** Senha nova também zera o bloqueio por tentativas de login. */
+  async setPassword(id: string, passwordHash: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+    });
+  }
+
   /** Cria o usuário com o hash da senha e os acessos de uma vez. O id vem de quem chama. */
   async create(
     {

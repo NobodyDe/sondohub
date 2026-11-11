@@ -86,7 +86,12 @@ export function LoginForm({ className, onSuccess, ...props }: LoginFormProps) {
             <FieldLabel htmlFor="password" className="font-semibold">
               Senha
             </FieldLabel>
-            <a href="#" className="text-sm font-medium hover:underline">
+            <a
+              href="/redefinir-senha"
+              target="_blank"
+              rel="noopener"
+              className="text-sm font-medium hover:underline"
+            >
               Esqueceu a senha?
             </a>
           </div>
