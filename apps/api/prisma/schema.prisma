@@ -28,6 +28,7 @@ model User {
 
   access   UserAppAccess[]
   sessions Session[]
+  passwordResetCode PasswordResetCode?
 
   @@map("users")
 }
@@ -78,6 +79,18 @@ model Session {
 
   @@index([userId])
   @@map("sessions")
+}
+
+/// Código de redefinição de senha: um por usuário, vale 5 minutos.
+model PasswordResetCode {
+  userId    String   @id @map("user_id") @db.Uuid
+  codeHash  String   @map("code_hash")
+  attempts  Int      @default(0)
+  expiresAt DateTime @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_codes")
 }
 
 enum UserRole {

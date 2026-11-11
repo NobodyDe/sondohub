@@ -9,9 +9,12 @@ import type {
   LoginInput,
   MyProfile,
   MySession,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
   UpdateAppInput,
   UpdateProfileInput,
   UpdateUserInput,
+  VerifyResetCodeInput,
 } from "@sondohub/contracts";
 
 export class ApiError extends Error {
@@ -50,6 +53,21 @@ export const hubApi = {
       body: JSON.stringify(input),
     }),
   logout: () => request<void>("/auth/logout", { method: "POST" }),
+  requestPasswordReset: (input: RequestPasswordResetInput) =>
+    request<void>("/auth/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  verifyResetCode: (input: VerifyResetCodeInput) =>
+    request<void>("/auth/password-reset/verify", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  resetPassword: (input: ResetPasswordInput) =>
+    request<void>("/auth/password-reset/confirm", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
   me: () => request<HubProfile>("/me"),
   myApps: () => request<LauncherApp[]>("/me/apps"),
   adminUsers: () => request<AdminUser[]>("/admin/users"),

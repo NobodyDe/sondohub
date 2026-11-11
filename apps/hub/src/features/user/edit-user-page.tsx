@@ -46,16 +46,16 @@ export function EditUserPage() {
 
             <SettingsRow
               title="Senha"
-              description="Você recebe um link por e-mail para criar uma nova."
+              description="Você recebe um código por e-mail para criar uma nova."
             >
-              <button
-                type="button"
-                disabled
-                title="Em breve"
-                className="h-10 rounded-[10px] border border-input px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              <a
+                href="/redefinir-senha"
+                target="_blank"
+                rel="noopener"
+                className="flex h-10 w-fit items-center rounded-[10px] border border-input px-4 text-sm font-semibold text-foreground hover:text-foreground"
               >
-                Esqueci a senha
-              </button>
+                Redefinir senha
+              </a>
             </SettingsRow>
 
             <SettingsRow

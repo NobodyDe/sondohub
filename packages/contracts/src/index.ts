@@ -108,6 +108,30 @@ export const passwordSchema = z
   .regex(HAS_NUMBER, "Use pelo menos um número.")
   .regex(HAS_SPECIAL, "Use pelo menos um caractere especial.");
 
+/** Código de 6 dígitos enviado por e-mail para redefinir a senha. */
+export const resetCodeSchema = z
+  .string()
+  .regex(/^\d{6}$/, "Digite os 6 dígitos do código.");
+
+/** Body de POST /api/auth/password-reset/request. */
+export const requestPasswordResetSchema = z.object({ email: emailSchema });
+export type RequestPasswordResetInput = z.infer<
+  typeof requestPasswordResetSchema
+>;
+
+/** Body de POST /api/auth/password-reset/verify. */
+export const verifyResetCodeSchema = z.object({
+  email: emailSchema,
+  code: resetCodeSchema,
+});
+export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>;
+
+/** Body de POST /api/auth/password-reset/confirm. */
+export const resetPasswordSchema = verifyResetCodeSchema.extend({
+  password: passwordSchema,
+});
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
 /** Body de POST /api/admin/users. */
 export const createUserSchema = z.object({
   name: z
