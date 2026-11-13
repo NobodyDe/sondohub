@@ -86,6 +86,21 @@
   --g-azure: linear-gradient(135deg, #1946fe 0%, #0061ff 100%);
   --g-ring: linear-gradient(135deg, #000000 0%, #1946fe 50%, #60efff 100%);
   --g-hero: var(--g-deep);
+
+  /* Painel do Master — degradê das linhas, cores dos apps, textura dos cards */
+  --grad-a: #1946fe;
+  --grad-b: #0aa5c0; /* fim do degradê 2 escurecido: #60efff some no fundo branco */
+  --app-1: #1946fe;
+  --app-2: #0a9fbd;
+  --app-3: #c99212;
+  --app-4: #1a7f37;
+  --app-5: #8b5cf6;
+  --app-6: #8c959f;
+  --heat: 25, 70, 254;
+  --dash-card-top: #ffffff;
+  --dash-dot: rgba(25, 70, 254, 0.16);
+  --dash-edge: rgba(25, 70, 254, 0.35);
+  --dash-shadow: 0 1px 2px rgba(31, 35, 40, 0.05), 0 14px 30px -22px rgba(25, 70, 254, 0.35);
 }
 
 /* ------------------------------------------------------------------
@@ -142,6 +157,20 @@
   --danger-border: #f0a3ae;
   --danger-text: #ffd6dc;
   --danger-hover: #3a1f24;
+
+  --grad-a: #0061ff;
+  --grad-b: #60efff;
+  --app-1: #5c8dff;
+  --app-2: #60efff;
+  --app-3: #f5c451;
+  --app-4: #34d399;
+  --app-5: #c084fc;
+  --app-6: #656c76;
+  --heat: 92, 141, 255;
+  --dash-card-top: #121925;
+  --dash-dot: rgba(96, 239, 255, 0.1);
+  --dash-edge: rgba(96, 239, 255, 0.28);
+  --dash-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 18px 40px -24px rgba(0, 0, 0, 0.9);
 }
 
 /* ------------------------------------------------------------------
@@ -159,6 +188,17 @@
     }
     to {
       transform: scaleY(1);
+    }
+  }
+
+  /* Curva do radar se desenhando uma vez (o path usa pathLength=1) */
+  --animate-draw-line: draw-line 1.1s cubic-bezier(0.6, 0, 0.2, 1) both;
+  @keyframes draw-line {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
     }
   }
 
@@ -249,6 +289,35 @@
 }
 @utility bg-g-hero {
   background-image: var(--g-hero);
+}
+
+/* Card do painel: pontos no canto de cima à direita, apagando para o centro, e um fio de luz na borda. */
+@utility dash-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--dash-card-top) 0%, var(--section) 55%);
+  box-shadow: var(--dash-shadow);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(var(--dash-dot) 1px, transparent 1.3px) 0 0 / 12px 12px;
+    mask-image: radial-gradient(circle at 100% 0%, #000 0, transparent 220px);
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 24px;
+    right: 24px;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--dash-edge), transparent);
+  }
 }
 
 @layer base {

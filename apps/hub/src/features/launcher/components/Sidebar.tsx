@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleHelp,
+  LayoutDashboard,
   LayoutGrid,
   Star,
   Users,
@@ -14,6 +15,7 @@ import { NavLink } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import { cn } from "../../../lib/utils.ts";
 import { usePreferencesStore } from "../../../stores/preferences-store.ts";
+import { trackAppClick } from "../track-app-click.ts";
 import {
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_MAX_WIDTH,
@@ -30,6 +32,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
+  { to: "/admin/painel", label: "Painel", icon: LayoutDashboard },
   { to: "/admin/usuarios", label: "Usuários", icon: Users },
   { to: "/admin/aplicativos", label: "Catálogo", icon: Blocks },
 ];
@@ -220,6 +223,8 @@ function RecentApps({ apps, collapsed }: RecentAppsProps) {
         <a
           key={app.slug}
           href={app.url}
+          onClick={() => trackAppClick(app.slug)}
+          onAuxClick={(event) => event.button === 1 && trackAppClick(app.slug)}
           title={collapsed ? app.name : undefined}
           className={cn(
             "flex items-center gap-2.5 rounded-[10px] px-3 py-2 text-sm text-ink-nav no-underline transition-colors hover:bg-accent hover:text-foreground",

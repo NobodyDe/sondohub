@@ -113,6 +113,10 @@ export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export const appAccessSchema = z.object({ level: z.number().int().positive() });
 export type AppAccessInput = z.infer<typeof appAccessSchema>;
 
+/** Body de POST /api/events/app-click: clique num app do launcher do hub. */
+export const appClickSchema = z.object({ slug: z.string().min(1) });
+export type AppClickInput = z.infer<typeof appClickSchema>;
+
 /** Um app liberado no cadastro: qual app e em que nível. */
 export const appGrantSchema = appAccessSchema.extend({
   slug: z.string().min(1),
@@ -286,3 +290,51 @@ export const userLookupSchema = z.object({
   ids: z.array(z.uuid()).min(1).max(100),
 });
 export type UserLookupInput = z.infer<typeof userLookupSchema>;
+
+/* ------------------------------------------------------------------
+   Painel do Master: GET /api/admin/dashboard?period=
+   ------------------------------------------------------------------ */
+export const dashboardPeriodSchema = z.enum(["7d", "30d", "90d", "12m"]);
+export type DashboardPeriod = z.infer<typeof dashboardPeriodSchema>;
+
+export const dashboardQuerySchema = z.object({
+  period: dashboardPeriodSchema.default("30d"),
+});
+export type DashboardQuery = z.infer<typeof dashboardQuerySchema>;
+
+/** Um ponto de série: início do bucket como data local ('YYYY-MM-DD') e o valor. */
+export type DashboardBucket = { start: string; value: number };
+
+export type DashboardRankedUser = {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  role: UserRole;
+  value: number;
+};
+
+export type DashboardRanking = { top: DashboardRankedUser[]; bottom: DashboardRankedUser[] };
+
+export type AdminDashboard = {
+  period: DashboardPeriod;
+  users: { active: number; total: number; createdByMonth: DashboardBucket[] };
+  logins: { total: number; previous: number; series: DashboardBucket[] };
+  sessions: { open: number; people: number; desktop: number; mobile: number };
+  activation: { everLoggedIn: number; total: number };
+  newUsers: { series: DashboardBucket[]; previous: number };
+  appUsers: { slug: string; name: string; users: number }[];
+  grants: { series: { start: string; bySlug: Record<string, number> }[]; previous: number };
+  /** [dia da semana, 0 = segunda][hora 0..23] */
+  loginHeatmap: number[][];
+  loginRanking: DashboardRanking;
+  sessionRanking: DashboardRanking;
+  appUsage: {
+    slug: string;
+    name: string;
+    opens: number;
+    previousOpens: number;
+    clicks: number;
+    previousClicks: number;
+  }[];
+  attention: { inactive30d: number; withoutApps: number; deactivated: number };
+};

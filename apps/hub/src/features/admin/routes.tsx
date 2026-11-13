@@ -2,6 +2,7 @@ import { Navigate, type RouteObject } from "react-router";
 import { AppDetailPage } from "./apps/pages/app-detail-page.tsx";
 import { AppsListPage } from "./apps/pages/apps-list-page.tsx";
 import { NewAppPage } from "./apps/pages/new-app-page.tsx";
+import { DashboardPage } from "./dashboard/pages/dashboard-page.tsx";
 import AdminLayout from "./layout/AdminLayout.tsx";
 import { NewUserPage } from "./users/pages/new-user-page.tsx";
 import { UserDetailPage } from "./users/pages/user-detail-page.tsx";
@@ -13,7 +14,8 @@ export const adminRoutes: RouteObject[] = [
     path: "/admin",
     element: <AdminLayout />,
     children: [
-      { index: true, element: <Navigate to="usuarios" replace /> },
+      { index: true, element: <Navigate to="painel" replace /> },
+      { path: "painel", element: <DashboardPage /> },
       { path: "usuarios", element: <UsersListPage /> },
       { path: "usuarios/novo", element: <NewUserPage /> },
       { path: "usuarios/:id", element: <UserDetailPage /> },

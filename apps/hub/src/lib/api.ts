@@ -1,11 +1,13 @@
 import type {
   AdminApp,
+  AdminDashboard,
   AdminUserDetail,
   AdminUsersPage,
   AdminUsersQuery,
   AdminUsersSummary,
   CreateAppInput,
   CreateUserInput,
+  DashboardPeriod,
   HubProfile,
   LauncherApp,
   LoginInput,
@@ -101,6 +103,8 @@ export const hubApi = {
   deleteAdminUser: (id: string) =>
     request<void>(`/admin/users/${id}`, { method: "DELETE" }),
   adminApps: () => request<AdminApp[]>("/admin/apps"),
+  adminDashboard: (period: DashboardPeriod) =>
+    request<AdminDashboard>(`/admin/dashboard?period=${period}`),
   adminApp: (id: string) => request<AdminApp>(`/admin/apps/${id}`),
   createAdminApp: (input: CreateAppInput) =>
     request<AdminApp>("/admin/apps", {

@@ -1,12 +1,13 @@
-import type {
-  AdminUsersSummary,
-  UserFilterId,
-  UserPageSize,
+import {
+  type AdminUsersSummary,
+  type UserFilterId,
+  type UserPageSize,
+  userFilterSchema,
 } from "@sondohub/contracts";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { hubApi } from "@/lib/api.ts";
 import { useDebounceByKey } from "@/lib/use-debounce-by-key.ts";
 import { cn } from "@/lib/utils.ts";
@@ -22,7 +23,11 @@ import {
 const SEARCH_DEBOUNCE_MS = 300; // digitar "maria" vira uma requisição, não cinco.
 
 export function UsersListPage() {
-  const [filter, setFilter] = useState<UserFilterId>("all");
+  const [searchParams] = useSearchParams();
+  // ?filtro= vem de links como os do painel; valor desconhecido cai em "todos".
+  const [filter, setFilter] = useState<UserFilterId>(
+    () => userFilterSchema.safeParse(searchParams.get("filtro")).data ?? "all",
+  );
   const [query, setQuery] = useState(""); // o que está no campo
   const [search, setSearch] = useState(""); // o que já foi para a API
   const [pageSize, setPageSize] = useState<UserPageSize>(10);

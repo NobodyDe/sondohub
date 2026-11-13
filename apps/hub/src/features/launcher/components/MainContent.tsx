@@ -2,6 +2,7 @@ import { ArrowRight, Star, GripVertical } from "lucide-react";
 import { cn } from "../../../lib/utils.ts";
 import type { AppView } from "../types/types.ts";
 import { usePreferencesStore } from "@/stores/preferences-store.ts";
+import { trackAppClick } from "../track-app-click.ts";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { move } from "@dnd-kit/helpers";
@@ -80,6 +81,8 @@ function AppCard({ app, index, canDrag }: AppCardProps) {
           {/* O ::after estica o link pelo card inteiro; a estrela fica por cima (z-10). */}
           <a
             href={app.url}
+            onClick={() => trackAppClick(app.slug)}
+            onAuxClick={(event) => event.button === 1 && trackAppClick(app.slug)}
             className="text-[17px] font-bold text-foreground no-underline outline-none after:absolute after:inset-0 after:rounded-[14px] focus-visible:after:ring-2 focus-visible:after:ring-ring"
           >
             {app.name}

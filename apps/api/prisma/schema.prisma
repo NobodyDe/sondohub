@@ -28,6 +28,7 @@ model User {
 
   access   UserAppAccess[]
   sessions Session[]
+  events   AppEvent[]
   passwordResetCode PasswordResetCode?
 
   @@map("users")
@@ -46,6 +47,7 @@ model Application {
   createdAt DateTime @default(now()) @map("created_at")
 
   access UserAppAccess[]
+  events AppEvent[]
 
   @@map("applications")
 }
@@ -61,6 +63,7 @@ model UserAppAccess {
 
   @@id([userId, applicationId])
   @@index([applicationId])
+  @@index([grantedAt]) // painel: inclusões por período
   @@map("user_app_access")
 }
 
@@ -78,6 +81,7 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([createdAt]) // painel: logins por período
   @@map("sessions")
 }
 
@@ -91,6 +95,28 @@ model PasswordResetCode {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_reset_codes")
+}
+
+/// Uso dos apps: OPEN = uma visita (renovações de token dentro de 30 min só avançam lastSeenAt); CLICK = clique no launcher do hub.
+model AppEvent {
+  id            BigInt       @id @default(autoincrement())
+  userId        String       @map("user_id") @db.Uuid
+  applicationId String       @map("application_id") @db.Uuid
+  type          AppEventType
+  createdAt     DateTime     @default(now()) @map("created_at")
+  lastSeenAt    DateTime     @default(now()) @map("last_seen_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, createdAt])
+  @@index([userId, createdAt])
+  @@map("app_events")
+}
+
+enum AppEventType {
+  OPEN
+  CLICK
 }
 
 enum UserRole {
