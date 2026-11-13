@@ -9,8 +9,8 @@ import { grantsOf, withAppLevel } from "../../shared/user-access.ts";
 import RemoveUserSection from "../components/RemoveUserSection.tsx";
 import RolePicker from "../components/RolePicker.tsx";
 import UserProfileHeader from "../components/UserProfileHeader.tsx";
+import { USERS_LIST_KEY } from "../use-users-page.ts";
 
-const USERS_LIST_KEY = ["admin", "users"];
 const DEBOUNCE_MS = 500; // cliques seguidos no mesmo campo viram uma requisição só.
 
 /** Uma edição: qual campo (key), como a tela fica agora (apply) e a chamada que grava (request). */
@@ -46,13 +46,13 @@ export function UserDetailPage() {
     // Falhou: busca de novo o que está no banco, e a tela volta ao que estava salvo.
     onError: () => queryClient.invalidateQueries({ queryKey: userKey }),
     onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: USERS_LIST_KEY, exact: true }),
+      queryClient.invalidateQueries({ queryKey: USERS_LIST_KEY }),
   });
 
   const remove = useMutation({
     mutationFn: () => hubApi.deleteAdminUser(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USERS_LIST_KEY, exact: true });
+      queryClient.invalidateQueries({ queryKey: USERS_LIST_KEY });
       navigate("/admin/usuarios");
     },
   });

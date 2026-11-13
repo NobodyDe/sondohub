@@ -16,17 +16,34 @@ export default function Banner({ userName }: BannerProps) {
           <LockKeyhole className="size-3.5" aria-hidden />
           LOGIN ÚNICO ATIVO
         </span>
-        <h2 id="banner-title" className="text-4xl leading-tight font-extrabold tracking-tight">
+        <h2
+          id="banner-title"
+          className="text-4xl leading-tight font-extrabold tracking-tight"
+        >
           {firstName(userName)}, tudo da Sondotecnica em um só lugar
         </h2>
         <p className="text-[17px] leading-relaxed text-ink-hero">
-          Você já está conectado. Abra qualquer aplicativo sem precisar entrar de novo.
+          Você já está conectado. Abra qualquer aplicativo sem precisar entrar
+          de novo.
         </p>
       </div>
 
-      <nav aria-label="Atalhos" className="grid flex-[1_1_360px] grid-cols-2 gap-3.5">
-        <QuickLink to="/favoritos" label="Ver meus favoritos" icon={Star} iconClassName="text-favorite" />
-        <QuickLink to="/conta" label="Editar minha conta" icon={UserRound} iconClassName="text-accent-sky" />
+      <nav
+        aria-label="Atalhos"
+        className="grid flex-[1_1_360px] grid-cols-2 gap-3.5"
+      >
+        <QuickLink
+          to=""
+          label="Ver meus favoritos"
+          icon={Star}
+          iconClassName="text-favorite"
+        />
+        <QuickLink
+          to="/perfil"
+          label="Editar minha conta"
+          icon={UserRound}
+          iconClassName="text-accent-sky"
+        />
       </nav>
     </section>
   );
@@ -45,7 +62,11 @@ function QuickLink({ to, label, icon: Icon, iconClassName }: QuickLinkProps) {
       to={to}
       className="flex flex-col gap-3.5 rounded-2xl bg-sunken p-5 text-foreground no-underline transition-colors hover:bg-sunken/70"
     >
-      <Icon className={`size-[22px] ${iconClassName}`} strokeWidth={1.8} aria-hidden />
+      <Icon
+        className={`size-[22px] ${iconClassName}`}
+        strokeWidth={1.8}
+        aria-hidden
+      />
       <span className="text-[15px] leading-snug font-bold">{label}</span>
     </Link>
   );

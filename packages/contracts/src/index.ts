@@ -59,6 +59,27 @@ export type AdminUser = HubProfile & {
   apps: AdminUserApp[];
 };
 
+export const USER_PAGE_SIZES = [5, 10] as const;
+export type UserPageSize = (typeof USER_PAGE_SIZES)[number];
+
+export const userFilterSchema = z.enum(["all", "master", "admin", "no-apps", "inactive"]);
+export type UserFilterId = z.infer<typeof userFilterSchema>;
+
+/** Query de GET /api/admin/users. cursor = id do último usuário da página anterior. */
+export const adminUsersQuerySchema = z.object({
+  filter: userFilterSchema.default("all"),
+  q: z.string().trim().max(100).default(""),
+  cursor: z.uuid().optional(),
+  take: z.coerce.number().pipe(z.literal([...USER_PAGE_SIZES])).default(10),
+});
+export type AdminUsersQuery = z.infer<typeof adminUsersQuerySchema>;
+
+/** Resposta de GET /api/admin/users. nextCursor null = última página. */
+export type AdminUsersPage = { items: AdminUser[]; nextCursor: string | null };
+
+/** Resposta de GET /api/admin/users/summary: totais de todos os usuários, sem filtro. */
+export type AdminUsersSummary = { total: number; masters: number; admins: number };
+
 /** Um nível de permissão, como vem da coluna applications.levels. */
 export type AppLevel = { level: number; label: string };
 

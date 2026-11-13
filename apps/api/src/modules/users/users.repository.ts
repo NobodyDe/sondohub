@@ -2,13 +2,36 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type {
-  AdminUser,
   AdminUserDetail,
+  AdminUsersPage,
+  AdminUsersQuery,
+  AdminUsersSummary,
   AppLevel,
   CreateUserInput,
   UpdateProfileInput,
   UpdateUserInput,
+  UserFilterId,
 } from '@sondohub/contracts';
+
+/** O que cada filtro da lista do admin significa no banco. */
+const FILTER_WHERE: Record<UserFilterId, Prisma.UserWhereInput> = {
+  all: {},
+  master: { role: 'MASTER' },
+  admin: { role: 'ADMIN' },
+  'no-apps': { access: { none: {} } },
+  inactive: { isActive: false },
+};
+
+// shortcut: ILIKE não ignora acento ("joao" não acha "João"); se precisar, usar a extensão unaccent do Postgres.
+function searchWhere(q: string): Prisma.UserWhereInput {
+  if (!q) return {};
+  return {
+    OR: [
+      { name: { contains: q, mode: 'insensitive' } },
+      { email: { contains: q, mode: 'insensitive' } },
+    ],
+  };
+}
 
 /** Campos que podem sair do repositório. password_hash nunca entra aqui. */
 export const safeUserSelect = {
@@ -54,8 +77,15 @@ export class UsersRepository {
     });
   }
 
-  async listAll(): Promise<AdminUser[]> {
+  /** Uma página da lista do admin, paginada por cursor (id do último usuário da página anterior). */
+  async listPage({
+    filter,
+    q,
+    cursor,
+    take,
+  }: AdminUsersQuery): Promise<AdminUsersPage> {
     const users = await this.prisma.user.findMany({
+      where: { ...FILTER_WHERE[filter], ...searchWhere(q) },
       select: {
         ...safeUserSelect,
         access: {
@@ -66,13 +96,34 @@ export class UsersRepository {
           orderBy: { application: { name: 'asc' } },
         },
       },
-      orderBy: { name: 'asc' },
+      // O id desempata nomes iguais: sem ele, o cursor pode pular ou repetir alguém.
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      take: take + 1, // um a mais só para saber se existe próxima página, sem COUNT.
+      ...(cursor && { cursor: { id: cursor }, skip: 1 }), // skip: 1 pula o próprio cursor.
     });
 
-    return users.map(({ access, ...user }) => ({
+    const items = users.slice(0, take).map(({ access, ...user }) => ({
       ...user,
       apps: access.map(({ level, application }) => ({ ...application, level })),
     }));
+    const hasNext = users.length > take;
+    return { items, nextCursor: hasNext ? items[items.length - 1].id : null };
+  }
+
+  /** Totais por cargo numa consulta só (GROUP BY), para o resumo do topo da lista. */
+  async summary(): Promise<AdminUsersSummary> {
+    const groups = await this.prisma.user.groupBy({
+      by: ['role'],
+      _count: { _all: true },
+    });
+    const count = (role: string) =>
+      groups.find((group) => group.role === role)?._count._all ?? 0;
+
+    return {
+      total: groups.reduce((sum, group) => sum + group._count._all, 0),
+      masters: count('MASTER'),
+      admins: count('ADMIN'),
+    };
   }
 
   /** Um usuário e TODOS os apps ativos, dizendo em quais ele entra e com que nível. */

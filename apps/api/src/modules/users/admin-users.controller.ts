@@ -9,9 +9,12 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
+  type AdminUsersQuery,
+  adminUsersQuerySchema,
   type AppAccessInput,
   appAccessSchema,
   type CreateUserInput,
@@ -35,10 +38,18 @@ export class AdminUsersController {
     private readonly admin: AdminUsersService,
   ) {}
 
-  /** Todos os usuários, com cargo, status e apps liberados. */
+  /** Uma página de usuários (cursor), com cargo, status e apps liberados. Filtro e busca no banco. */
   @Get()
-  list() {
-    return this.users.listAll();
+  list(
+    @Query(new ZodValidationPipe(adminUsersQuerySchema)) query: AdminUsersQuery,
+  ) {
+    return this.users.listPage(query);
+  }
+
+  /** Totais por cargo. Fica antes de :id, senão "summary" cairia no ParseUUIDPipe. */
+  @Get('summary')
+  summary() {
+    return this.users.summary();
   }
 
   /** Cria o usuário com senha, cargo e apps. */

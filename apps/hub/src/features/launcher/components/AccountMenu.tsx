@@ -1,5 +1,6 @@
 import type { HubProfile } from "@sondohub/contracts";
 import { LogOut, Moon, Settings, Sun, UserRound } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import {
@@ -14,6 +15,7 @@ import { hubApi } from "@/lib/api.ts";
 
 export type AccountMenuProps = {
   profile: HubProfile;
+  children?: ReactNode; // conteúdo do botão; sem ele, o ícone de engrenagem
 };
 
 async function logout() {
@@ -24,14 +26,14 @@ async function logout() {
   }
 }
 
-export default function AccountMenu({ profile }: AccountMenuProps) {
+export default function AccountMenu({ profile, children }: AccountMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Menu da conta"
         className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-ink-nav transition-colors hover:bg-hover-strong hover:text-foreground"
       >
-        <Settings className="size-5" strokeWidth={1.8} aria-hidden />
+        {children ?? <Settings className="size-5" strokeWidth={1.8} aria-hidden />}
       </DropdownMenuTrigger>
 
       <DropdownMenuContent side="top" align="end" className="w-72">

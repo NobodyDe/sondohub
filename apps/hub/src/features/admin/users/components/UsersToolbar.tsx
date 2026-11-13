@@ -1,7 +1,8 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input.tsx";
 import { cn } from "@/lib/utils.ts";
-import { USER_FILTERS, type UserFilterId } from "../user-filters.ts";
+import type { UserFilterId } from "@sondohub/contracts";
+import { USER_FILTERS } from "../user-filters.ts";
 
 type UsersToolbarProps = {
   filter: UserFilterId;

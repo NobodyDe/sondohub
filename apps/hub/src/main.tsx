@@ -7,6 +7,7 @@ import { adminRoutes } from "./features/admin/routes.tsx";
 import { LoginPage } from "./features/auth/login-page.tsx";
 import { ResetPasswordPage } from "./features/auth/reset-password-page.tsx";
 import { LauncherPage } from "./features/launcher/launcher-page.tsx";
+import { NotFoundPage } from "./features/not-found/not-found-page.tsx";
 import { EditUserPage } from "./features/user/edit-user-page.tsx";
 import "./index.css";
 
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
   { path: "/redefinir-senha", element: <ResetPasswordPage /> },
   { path: "/perfil", element: <EditUserPage /> },
   ...adminRoutes, // /admin/* passa pelo AdminLayout: sidebar e guarda de Master.
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 const queryClient = new QueryClient();

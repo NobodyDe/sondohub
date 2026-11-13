@@ -1,7 +1,9 @@
 import type {
   AdminApp,
-  AdminUser,
   AdminUserDetail,
+  AdminUsersPage,
+  AdminUsersQuery,
+  AdminUsersSummary,
   CreateAppInput,
   CreateUserInput,
   HubProfile,
@@ -70,7 +72,12 @@ export const hubApi = {
     }),
   me: () => request<HubProfile>("/me"),
   myApps: () => request<LauncherApp[]>("/me/apps"),
-  adminUsers: () => request<AdminUser[]>("/admin/users"),
+  adminUsers: ({ filter, q, take, cursor }: AdminUsersQuery) => {
+    const params = new URLSearchParams({ filter, q, take: String(take) });
+    if (cursor) params.set("cursor", cursor);
+    return request<AdminUsersPage>(`/admin/users?${params}`);
+  },
+  adminUsersSummary: () => request<AdminUsersSummary>("/admin/users/summary"),
   adminUser: (id: string) => request<AdminUserDetail>(`/admin/users/${id}`),
   createAdminUser: (input: CreateUserInput) =>
     request<AdminUserDetail>("/admin/users", {

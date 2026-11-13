@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import UserAvatar from "@/components/UserAvatar.tsx";
 import { cn } from "@/lib/utils.ts";
@@ -7,7 +8,12 @@ import type { AdminUser, AdminUserApp } from "@sondohub/contracts";
 
 const APP_COLORS = ["bg-g-deep", "bg-g-royal", "bg-g-azure"];
 
-export default function UsersTable({ users }: { users: AdminUser[] }) {
+type UsersTableProps = {
+  users: AdminUser[];
+  footer?: ReactNode; // ex.: paginação, desenhada dentro da moldura da tabela
+};
+
+export default function UsersTable({ users, footer }: UsersTableProps) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-line-subtle bg-sidebar">
       <table className="w-full min-w-[680px] border-collapse text-left">
@@ -32,6 +38,8 @@ export default function UsersTable({ users }: { users: AdminUser[] }) {
       {users.length === 0 && (
         <p className="px-5 py-10 text-center text-sm text-muted-foreground">Nenhum usuário encontrado.</p>
       )}
+
+      {footer && <div className="border-t border-line-divider px-5 py-3">{footer}</div>}
     </div>
   );
 }
