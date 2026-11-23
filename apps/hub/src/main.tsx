@@ -9,6 +9,7 @@ import { ResetPasswordPage } from "./features/auth/reset-password-page.tsx";
 import { LauncherPage } from "./features/launcher/launcher-page.tsx";
 import { NotFoundPage } from "./features/not-found/not-found-page.tsx";
 import { EditUserPage } from "./features/user/edit-user-page.tsx";
+import { ApiKeysPage } from "./features/developer/pages/api-keys-page.tsx";
 import "./index.css";
 
 z.config(z.locales.pt());
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/redefinir-senha", element: <ResetPasswordPage /> },
   { path: "/perfil", element: <EditUserPage /> },
+  { path: "/desenvolvedor/chaves", element: <ApiKeysPage /> },
   ...adminRoutes, // /admin/* passa pelo AdminLayout: sidebar e guarda de Master.
   { path: "*", element: <NotFoundPage /> },
 ]);
