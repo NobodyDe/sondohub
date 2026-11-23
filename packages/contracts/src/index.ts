@@ -338,3 +338,29 @@ export type AdminDashboard = {
   }[];
   attention: { inactive30d: number; withoutApps: number; deactivated: number };
 };
+
+/* ------------------------------------------------------------------
+   Chaves de API: /api/me/api-keys
+   ------------------------------------------------------------------ */
+/** Prazos aceitos, em dias. null (nunca expira) só para MASTER: a API confere. */
+export const API_KEY_EXPIRY_DAYS = [7, 30, 90, 365] as const;
+
+/** Body de POST /api/me/api-keys. */
+export const createApiKeySchema = z.object({
+  name: z.string().trim().min(1).max(60),
+  expiresInDays: z.literal(API_KEY_EXPIRY_DAYS).nullable(),
+});
+export type CreateApiKeyInput = z.infer<typeof createApiKeySchema>;
+
+/** Uma chave como a tela vê: sem o segredo, só o trecho para reconhecer (hint). */
+export type ApiKey = {
+  id: string;
+  name: string;
+  hint: string; // "sk_sondo_1Wj...tQAA"
+  createdAt: string;
+  expiresAt: string | null; // null = nunca expira
+  lastUsedAt: string | null;
+};
+
+/** Resposta de POST /api/me/api-keys: a única vez em que o segredo inteiro aparece. */
+export type CreatedApiKey = { key: ApiKey; secret: string };

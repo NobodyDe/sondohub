@@ -5,6 +5,9 @@ import type {
   AdminUsersPage,
   AdminUsersQuery,
   AdminUsersSummary,
+  ApiKey,
+  CreateApiKeyInput,
+  CreatedApiKey,
   CreateAppInput,
   CreateUserInput,
   DashboardPeriod,
@@ -121,6 +124,14 @@ export const hubApi = {
     request<MyProfile>("/me", { method: "PATCH", body: JSON.stringify(input) }),
   deleteMyAccount: () => request<void>("/me", { method: "DELETE" }),
   mySessions: () => request<MySession[]>("/me/sessions"),
+  apiKeys: () => request<ApiKey[]>("/me/api-keys"),
+  createApiKey: (input: CreateApiKeyInput) =>
+    request<CreatedApiKey>("/me/api-keys", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  deleteApiKey: (id: string) =>
+    request<void>(`/me/api-keys/${id}`, { method: "DELETE" }),
   revokeMySession: (id: string) =>
     request<void>(`/me/sessions/${id}`, { method: "DELETE" }),
   revokeAllMySessions: () =>

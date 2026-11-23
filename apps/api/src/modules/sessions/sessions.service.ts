@@ -11,7 +11,7 @@ export type SessionMeta = { userAgent?: string; ip?: string };
 
 // O banco guarda só o hash: se vazar, ninguém consegue usar as sessões.
 // SHA-256 (rápido) basta porque o token tem 256 bits aleatórios: não há o que adivinhar.
-function hashToken(token: string): string {
+export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 

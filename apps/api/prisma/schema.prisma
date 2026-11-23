@@ -30,6 +30,7 @@ model User {
   sessions Session[]
   events   AppEvent[]
   passwordResetCode PasswordResetCode?
+  apiKeys  ApiKey[]
 
   @@map("users")
 }
@@ -83,6 +84,24 @@ model Session {
   @@index([userId])
   @@index([createdAt]) // painel: logins por período
   @@map("sessions")
+}
+
+/// Chave de API de um usuário. O segredo não fica aqui: só o SHA-256 (key_hash) e um trecho para a tela (hint).
+model ApiKey {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  name       String    @db.VarChar(60)
+  keyHash    String    @unique @map("key_hash")
+  hint       String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  expiresAt  DateTime? @map("expires_at") // null = nunca expira (só MASTER cria)
+  lastUsedAt DateTime? @map("last_used_at")
+  revokedAt  DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("api_keys")
 }
 
 /// Código de redefinição de senha: um por usuário, vale 5 minutos.

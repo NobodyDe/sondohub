@@ -1,6 +1,6 @@
 import type { HubProfile } from "@sondohub/contracts";
 import { LogOut, Moon, Settings, Sun, UserRound } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { Link } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
 import {
@@ -12,6 +12,7 @@ import {
 } from "../../../components/ui/dropdown-menu.tsx";
 import { useThemeStore } from "../../../stores/theme-store.ts";
 import { hubApi } from "@/lib/api.ts";
+import SettingsDialog from "@/features/settings/SettingsDialog.tsx";
 
 export type AccountMenuProps = {
   profile: HubProfile;
@@ -27,45 +28,51 @@ async function logout() {
 }
 
 export default function AccountMenu({ profile, children }: AccountMenuProps) {
+  // O modal fica fora do menu: o menu desmonta ao fechar e levaria o modal junto.
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        aria-label="Menu da conta"
-        className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-ink-nav transition-colors hover:bg-hover-strong hover:text-foreground"
-      >
-        {children ?? <Settings className="size-5" strokeWidth={1.8} aria-hidden />}
-      </DropdownMenuTrigger>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label="Menu da conta"
+          className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-ink-nav transition-colors hover:bg-hover-strong hover:text-foreground"
+        >
+          {children ?? <Settings className="size-5" strokeWidth={1.8} aria-hidden />}
+        </DropdownMenuTrigger>
 
-      <DropdownMenuContent side="top" align="end" className="w-72">
-        <div className="flex items-center gap-3 p-2">
-          <UserAvatar name={profile.name} url={profile.avatarUrl} />
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm font-semibold">
-              {profile.name}
-            </span>
-            <span className="truncate text-xs text-muted-foreground">
-              {profile.email}
-            </span>
+        <DropdownMenuContent side="top" align="end" className="w-72">
+          <div className="flex items-center gap-3 p-2">
+            <UserAvatar name={profile.name} url={profile.avatarUrl} />
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-sm font-semibold">
+                {profile.name}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                {profile.email}
+              </span>
+            </div>
           </div>
-        </div>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link to="/conta" />}>
-          <Settings /> Configurações
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link to="/perfil" />}>
-          <UserRound /> Meu perfil
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+            <Settings /> Configurações
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem render={<Link to="/perfil" />}>
+            <UserRound /> Meu perfil
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
 
-        <ThemeToggleItem />
-        <DropdownMenuSeparator />
+          <ThemeToggleItem />
+          <DropdownMenuSeparator />
 
-        <DropdownMenuItem variant="destructive" onClick={logout}>
-          <LogOut /> Sair
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem variant="destructive" onClick={logout}>
+            <LogOut /> Sair
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+    </>
   );
 }
 
