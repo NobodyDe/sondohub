@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module.js';
 import { env } from './config/env.js';
 import { AppsRepository } from './modules/apps/apps.repository.js';
+import { AssistenteGateway } from './modules/assistente/assistente.gateway.js';
 
 const app = await NestFactory.create<NestExpressApplication>(AppModule);
 // Em produção a requisição passa por 2 nginx antes de chegar aqui. Sem isso, o req.ip
@@ -21,3 +22,5 @@ app.enableCors({
 });
 app.enableShutdownHooks();
 await app.listen(env.API_PORT);
+// O WebSocket do assistente entra pelo upgrade do servidor HTTP (o Nest só roteia HTTP comum).
+app.get(AssistenteGateway).attach(app.getHttpServer());

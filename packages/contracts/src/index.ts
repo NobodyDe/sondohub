@@ -364,3 +364,5 @@ export type ApiKey = {
 
 /** Resposta de POST /api/me/api-keys: a única vez em que o segredo inteiro aparece. */
 export type CreatedApiKey = { key: ApiKey; secret: string };
+
+export * from "./assistente.js";

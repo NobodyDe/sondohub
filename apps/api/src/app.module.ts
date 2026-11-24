@@ -3,11 +3,12 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AccountModule } from './modules/account/account.module.js';
 import { ApiKeysModule } from './modules/api-keys/api-keys.module.js';
+import { AssistenteModule } from './modules/assistente/assistente.module.js';
 import { DashboardModule } from './modules/dashboard/dashboard.module.js';
 import { SsoModule } from './modules/sso/sso.module.js';
 
 @Module({
-  imports: [PrismaModule, AuthModule, AccountModule, SsoModule, DashboardModule, ApiKeysModule],
+  imports: [PrismaModule, AuthModule, AccountModule, SsoModule, DashboardModule, ApiKeysModule, AssistenteModule],
   controllers: [],
   providers: [],
 })

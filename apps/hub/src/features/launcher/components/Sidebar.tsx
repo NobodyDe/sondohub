@@ -1,6 +1,7 @@
 import type { HubProfile, LauncherApp } from "@sondohub/contracts";
 import {
   Blocks,
+  Bot,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
@@ -35,6 +36,7 @@ const ADMIN_ITEMS: NavItem[] = [
   { to: "/admin/painel", label: "Painel", icon: LayoutDashboard },
   { to: "/admin/usuarios", label: "Usuários", icon: Users },
   { to: "/admin/aplicativos", label: "Catálogo", icon: Blocks },
+  { to: "/admin/assistente", label: "Assistente", icon: Bot },
 ];
 
 type SidebarProps = {

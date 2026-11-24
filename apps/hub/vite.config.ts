@@ -18,7 +18,8 @@ export default defineConfig(({ mode }) => {
       port: Number(env.HUB_PORT),
       strictPort: true,
       // Front e API no mesmo origin, como vai ser em produção (hub.sondotecnica.com.br/api).
-      proxy: { "/api": `http://localhost:${env.API_PORT}` },
+      // ws: true deixa o WebSocket do assistente (/api/assistente/voz) passar pelo proxy.
+      proxy: { "/api": { target: `http://localhost:${env.API_PORT}`, ws: true } },
     },
   };
 });

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router";
 import { hubApi } from "@/lib/api.ts";
 import { useDebounceByKey } from "@/lib/use-debounce-by-key.ts";
+import AssistenteAutorizacaoSwitch from "../../../assistente/components/AssistenteAutorizacaoSwitch.tsx";
 import AppAccessList from "../../shared/AppAccessList.tsx";
 import type { CatalogApp } from "../../shared/types.ts";
 import { grantsOf, withAppLevel } from "../../shared/user-access.ts";
@@ -115,6 +116,7 @@ export function UserDetailPage() {
         grants={grantsOf(user.apps)}
         onLevelChange={changeAppLevel}
       />
+      <AssistenteAutorizacaoSwitch userId={user.id} role={user.role} />
       <RemoveUserSection onRemove={() => remove.mutate()} />
     </div>
   );

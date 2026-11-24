@@ -1,5 +1,5 @@
 import type { HubProfile } from "@sondohub/contracts";
-import { LogOut, Moon, Settings, Sun, UserRound } from "lucide-react";
+import { Bot, LogOut, Moon, Settings, Sun, UserRound } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Link } from "react-router";
 import UserAvatar from "../../../components/UserAvatar.tsx";
@@ -13,6 +13,7 @@ import {
 import { useThemeStore } from "../../../stores/theme-store.ts";
 import { hubApi } from "@/lib/api.ts";
 import SettingsDialog from "@/features/settings/SettingsDialog.tsx";
+import { useAssistenteConfig } from "../../assistente/use-assistente-config.ts";
 
 export type AccountMenuProps = {
   profile: HubProfile;
@@ -30,6 +31,7 @@ async function logout() {
 export default function AccountMenu({ profile, children }: AccountMenuProps) {
   // O modal fica fora do menu: o menu desmonta ao fechar e levaria o modal junto.
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const assistantAllowed = useAssistenteConfig().data?.autorizado;
 
   return (
     <>
@@ -61,6 +63,11 @@ export default function AccountMenu({ profile, children }: AccountMenuProps) {
           <DropdownMenuItem render={<Link to="/perfil" />}>
             <UserRound /> Meu perfil
           </DropdownMenuItem>
+          {assistantAllowed && (
+            <DropdownMenuItem render={<Link to="/assistente" />}>
+              <Bot /> Assistente
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
 
           <ThemeToggleItem />

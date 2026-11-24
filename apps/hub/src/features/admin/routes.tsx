@@ -1,4 +1,7 @@
 import { Navigate, type RouteObject } from "react-router";
+import { AdminAssistenteAuditoriaPage } from "../assistente/pages/AdminAssistenteAuditoriaPage.tsx";
+import { AdminAssistentePage } from "../assistente/pages/AdminAssistentePage.tsx";
+import { AssistenteRegrasPage } from "../assistente/pages/AssistenteRegrasPage.tsx";
 import { AppDetailPage } from "./apps/pages/app-detail-page.tsx";
 import { AppsListPage } from "./apps/pages/apps-list-page.tsx";
 import { NewAppPage } from "./apps/pages/new-app-page.tsx";
@@ -22,6 +25,9 @@ export const adminRoutes: RouteObject[] = [
       { path: "aplicativos", element: <AppsListPage /> },
       { path: "aplicativos/novo", element: <NewAppPage /> },
       { path: "aplicativos/:id", element: <AppDetailPage /> },
+      { path: "assistente", element: <AdminAssistentePage /> },
+      { path: "assistente/regras", element: <AssistenteRegrasPage global /> },
+      { path: "assistente/auditoria", element: <AdminAssistenteAuditoriaPage /> },
     ],
   },
 ];
