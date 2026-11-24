@@ -29,6 +29,8 @@ Esta pasta é um **guia de implementação em formato de curso**. Você escreve 
 | 15 | ["Entrar com SondoHub" no Gêmeo](15-aula-entrar-com-sondohub.md) | O botão na tela de login do Gêmeo que vai ao login do hub e volta logado: como cada peça funciona e o que ligar em produção |
 | 16 | [Pipeline de CI/CD](16-aula-ci-cd.md) | Todo push na `main` passa por build, lint e teste e, se passar, vai sozinho para produção com o mesmo `deploy.ps1` |
 | 17 | [Os níveis do Gêmeo viram os papéis dele](17-aula-niveis-do-gemeo.md) | O card do Gêmeo com Usuário, Administrador e Master (migration de dados), o `GemeoClient` traduzindo nível em `role` e o envio, uma vez só, de quem já tinha acesso |
+| 18 | [Integrando o Experience](18-integracao-experience.md) | *(dev em andamento)* Troca do token do hub pelo JWT do Experience, coluna `hub_user_id`, login atual intacto, dev antes de produção, botão "Entrar com SondoHub", o ▦, o hub cadastrando e inativando usuários no Experience com chave de API (nível = `adm`) e a receita para qualquer app da Sondotecnica |
+| 19 | [Guia: integrar um app da Sondotecnica](19-guia-integracao-app-sondotecnica.md) | Passo a passo genérico (hub, API, cadastro por chave de API, front), checklist de testes, produção, variáveis de ambiente e os erros reais que já aconteceram. Base da seção "Integração com app Sondotecnica" |
 
 ## Formato de cada aula
 

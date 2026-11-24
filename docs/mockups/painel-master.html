@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Painel Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* Tokens copiados do hub (apps/hub/src/index.css) + paleta categórica dos apps */
+:root {
+  --bg: #f6f8fa; --card: #ffffff; --card-top: #ffffff; --raised: #eef3f8; --border: #d1d9e0; --divider: #e1e7ec;
+  --fg: #1f2328; --body: #424a53; --label: #59636e; --faint: #8c959f;
+  --primary: #1946fe; --primary-soft: #e6ecff; --up: #1a7f37; --down: #cf222e; --warn: #9a6700;
+  --a1: #1946fe; --a2: #0a9fbd; --a3: #c99212; --a4: #1a7f37; --a5: #8b5cf6; --a6: #8c959f;
+  --heat: 25, 70, 254;
+  /* degradê 2 do hub; no claro o fim escurece para manter contraste no branco */
+  --grad-a: #1946fe; --grad-b: #0aa5c0;
+  --dot: rgba(25, 70, 254, .16); --page-dot: rgba(31, 35, 40, .07); --edge: rgba(25, 70, 254, .35);
+  --glow: rgba(25, 70, 254, .10);
+  --shadow: 0 1px 2px rgba(31, 35, 40, .05), 0 14px 30px -22px rgba(25, 70, 254, .35);
+  --g-deep: linear-gradient(135deg, #000 0%, #003af9 100%);
+}
+.dark {
+  --bg: #010409; --card: #0d1117; --card-top: #121925; --raised: #161d27; --border: #232a35; --divider: #1c222b;
+  --fg: #f0f6fc; --body: #b7bdc8; --label: #9198a1; --faint: #656c76;
+  --primary: #5c8dff; --primary-soft: #0e1a3d; --up: #34d399; --down: #ff7b8a; --warn: #f5c451;
+  --a1: #5c8dff; --a2: #60efff; --a3: #f5c451; --a4: #34d399; --a5: #c084fc; --a6: #656c76;
+  --heat: 92, 141, 255;
+  --grad-a: #0061ff; --grad-b: #60efff;
+  --dot: rgba(96, 239, 255, .10); --page-dot: rgba(240, 246, 252, .05); --edge: rgba(96, 239, 255, .28);
+  --glow: rgba(0, 97, 255, .16);
+  --shadow: inset 0 1px 0 rgba(255, 255, 255, .03), 0 18px 40px -24px rgba(0, 0, 0, .9);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--fg);
+  background:
+    radial-gradient(1100px 420px at 50% -260px, var(--glow), transparent 70%),
+    radial-gradient(var(--page-dot) 1px, transparent 1.2px) 0 0 / 22px 22px,
+    var(--bg);
+  font: 14px/1.5 "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+
+.page { max-width: 1320px; margin: 0 auto; padding: 32px 24px 64px; }
+
+/* Cabeçalho */
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.top h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+.top p { margin: 4px 0 0; color: var(--label); }
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.seg button { border: 0; background: none; padding: 6px 12px; border-radius: 7px; cursor: pointer; color: var(--label); font-weight: 600; font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--raised); color: var(--fg); box-shadow: inset 0 0 0 1px var(--border); }
+.ghost { border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 7px 12px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--label); }
+
+/* Grade */
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+.card {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: linear-gradient(180deg, var(--card-top) 0%, var(--card) 55%);
+  border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; min-width: 0;
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+}
+/* Textura de pontos no canto superior direito, apagando em direção ao centro */
+.card::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(var(--dot) 1px, transparent 1.3px) 0 0 / 12px 12px;
+  -webkit-mask-image: radial-gradient(circle at 100% 0%, #000 0, transparent 220px);
+          mask-image: radial-gradient(circle at 100% 0%, #000 0, transparent 220px);
+}
+/* Fio de luz na borda de cima */
+.card::after {
+  content: ""; position: absolute; top: 0; left: 24px; right: 24px; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--edge), transparent);
+}
+.c3 { grid-column: span 3; } .c4 { grid-column: span 4; } .c8 { grid-column: span 8; }
+.r2 { grid-row: span 2; }
+@media (max-width: 1080px) { .c3 { grid-column: span 6; } .c4, .c8 { grid-column: span 12; } .r2 { grid-row: auto; } }
+@media (max-width: 600px) { .c3 { grid-column: span 12; } .page { padding: 20px 16px 48px; } }
+
+.head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.title { display: flex; gap: 11px; align-items: start; min-width: 0; }
+.ico {
+  flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+  background: var(--raised); border: 1px solid var(--border); color: var(--primary);
+}
+.ico svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.head h2 { margin: 0; font-size: 14px; font-weight: 700; color: var(--fg); }
+.head .sub { margin: 1px 0 0; font-size: 12.5px; color: var(--label); }
+.big { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-top: 16px; }
+.big small { font-size: 13px; font-weight: 500; color: var(--label); letter-spacing: 0; margin-left: 6px; }
+.delta { font-size: 12.5px; font-weight: 700; }
+.delta.up { color: var(--up); } .delta.down { color: var(--down); }
+.foot { margin-top: auto; padding-top: 14px; font-size: 12.5px; color: var(--label); }
+
+/* Origem do dado: anel = precisa de novo registro na API */
+.src { flex: none; width: 9px; height: 9px; margin-top: 4px; border-radius: 50%; background: var(--faint); }
+.src.new { background: none; border: 2px solid var(--warn); }
+
+/* KPIs */
+.kpi .spark { margin-top: auto; height: 42px; width: 100%; overflow: visible; }
+.bars { display: flex; gap: 3px; align-items: end; height: 38px; margin-top: auto; }
+.bars i { flex: 1; background: var(--raised); border-radius: 3px; }
+.bars i.on { background: linear-gradient(0deg, var(--grad-a), var(--grad-b)); }
+.gauge { display: flex; align-items: end; gap: 14px; margin-top: auto; }
+.gauge svg { width: 120px; height: 66px; flex: none; }
+.devices { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; margin-top: 14px; }
+
+/* Gráficos SVG */
+svg text { fill: var(--label); font-size: 11px; font-family: inherit; }
+.chart { width: 100%; height: 210px; margin-top: 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: 12.5px; color: var(--body); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: 3px; }
+.line-glow { filter: drop-shadow(0 0 6px var(--edge)); }
+
+/* Usuários por app */
+.hbars { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 12px; }
+.hbars li { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; font-size: 13px; }
+.hbars .name { display: flex; align-items: center; gap: 8px; color: var(--fg); font-weight: 600; min-width: 0; }
+.hbars .name i { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+.hbars .track { grid-column: 1 / -1; height: 6px; background: var(--raised); border-radius: 4px; overflow: hidden; }
+.hbars .track b { display: block; height: 100%; border-radius: 4px; }
+.hbars .n { font-weight: 700; } .hbars .n small { color: var(--label); font-weight: 500; }
+
+/* Radar de uso */
+.radar { width: 100%; aspect-ratio: 440 / 345; margin-top: 4px; }
+.radar .ring { fill: none; stroke: var(--divider); }
+.radar .spoke { stroke: var(--divider); }
+.radar .prev { fill: none; stroke: var(--faint); stroke-width: 1.5; stroke-dasharray: 4 5; }
+.radar .curve { fill: url(#radar-fill); stroke: url(#radar-stroke); stroke-width: 3; stroke-linejoin: round; }
+.radar .vtx { fill: var(--card); stroke: url(#radar-stroke); stroke-width: 2.5; cursor: default; }
+.radar .vtx:hover { r: 6; }
+.radar .lbl-name { fill: var(--fg); font-weight: 700; font-size: 12.5px; }
+.radar .lbl-val { fill: var(--label); font-size: 11.5px; }
+.radar .core { fill: var(--raised); stroke: var(--border); }
+.radar .core-ico { fill: none; stroke: var(--label); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 1.1s cubic-bezier(.6, 0, .2, 1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.radar-key { display: flex; gap: 16px; font-size: 12px; color: var(--label); margin-top: 2px; }
+.radar-key span { display: inline-flex; align-items: center; gap: 6px; }
+.radar-key i { width: 16px; height: 0; border-top: 3px solid var(--grad-b); border-radius: 2px; }
+.radar-key i.dash { border-top: 2px dashed var(--faint); }
+.apps-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 12.5px; }
+.apps-table th { text-align: right; font-weight: 600; color: var(--label); padding: 0 0 6px; }
+.apps-table th:first-child, .apps-table td:first-child { text-align: left; }
+.apps-table td { text-align: right; padding: 7px 0; border-top: 1px solid var(--divider); color: var(--body); }
+.apps-table td:first-child { color: var(--fg); font-weight: 600; }
+.apps-table td:first-child i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 8px; }
+.apps-table tr.hl td { background: var(--raised); }
+
+/* Heatmap */
+.heat { display: grid; grid-template-columns: 30px repeat(24, 1fr); gap: 3px; margin-top: 16px; font-size: 11px; color: var(--label); }
+.heat i { aspect-ratio: 1.5; border-radius: 3px; background: rgba(var(--heat), .06); }
+.heat .hx { text-align: left; color: var(--faint); }
+.scale { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--label); }
+.scale i { width: 14px; height: 10px; border-radius: 2px; }
+
+/* Rankings */
+.rank { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 2px; }
+.rank li { display: grid; grid-template-columns: 28px 1fr 64px auto; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--divider); font-size: 13px; }
+.rank li:first-child { border-top: 0; }
+.av { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; background: var(--g-deep); box-shadow: 0 0 0 2px var(--card), 0 0 0 3px var(--border); }
+.rank .who { min-width: 0; }
+.rank .who b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank .who span { font-size: 11.5px; color: var(--label); }
+.rank .mini { height: 5px; background: var(--raised); border-radius: 3px; overflow: hidden; }
+.rank .mini b { display: block; height: 100%; background: linear-gradient(90deg, var(--grad-a), var(--grad-b)); border-radius: 3px; }
+.rank .n { font-weight: 700; text-align: right; min-width: 32px; }
+.rank .n.zero { color: var(--down); }
+.seg.sm button { padding: 4px 9px; font-size: 12px; }
+
+/* Contas que pedem atenção */
+.health { list-style: none; margin: 14px 0 0; padding: 0; }
+.health li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 11px 0; border-top: 1px solid var(--divider); }
+.health li:first-child { border-top: 0; }
+.health b { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; text-align: right; grid-row: span 2; align-self: center; }
+.health strong { font-size: 13px; font-weight: 600; }
+.health a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 12px; }
+.health a:hover { text-decoration: underline; }
+.warn b { color: var(--warn); } .bad b { color: var(--down); }
+
+.note { margin-top: 18px; display: flex; gap: 18px; flex-wrap: wrap; font-size: 12.5px; color: var(--label); }
+.note span { display: inline-flex; align-items: center; gap: 7px; }
+.note .src { margin: 0; }
+.tip { position: fixed; pointer-events: none; background: var(--fg); color: var(--bg); font-size: 12px; padding: 6px 9px; border-radius: 8px; opacity: 0; transition: opacity .1s; z-index: 10; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .draw { stroke-dashoffset: 0; } }
+</style>
+</head>
+<body>
+<!-- Ícones (traço do lucide, mesma biblioteca do hub) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-login" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+  <symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+</svg>
+
+<div class="page">
+  <header class="top">
+    <div>
+      <h1>Painel</h1>
+      <p>Como a equipe está usando o SondoHub</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Período" id="period">
+        <button data-p="7" aria-pressed="false">7 dias</button>
+        <button data-p="30" aria-pressed="true">30 dias</button>
+        <button data-p="90" aria-pressed="false">90 dias</button>
+        <button data-p="365" aria-pressed="false">12 meses</button>
+      </div>
+      <button class="ghost" id="theme">Tema claro</button>
+    </div>
+  </header>
+
+  <section class="grid">
+    <!-- KPIs -->
+    <article class="card c3 kpi">
+      <div class="head"><div class="title"><span class="ico"><svg><use href="#i-users"/></svg></span><div><h2>Usuários ativos</h2><p class="sub">Contas habilitadas no hub</p></div></div><i class="src"></i></div>
+      <div class="big">148<small>de 162 cadastrados</small></div>
+      <div class="bars" id="k-users"></div>
+    </article>
+    <article class="card c3 kpi">
+      <div class="head"><div class="title"><span class="ico"><svg><use href="#i-login"/></svg></span><div><h2>Logins</h2><p class="sub" data-plabel>Nos últimos 30 dias</p></div></div><i class="src"></i></div>
+      <div class="big" id="k-logins">1.284<small class="delta up">+9% vs anterior</small></div>
+      <svg class="spark" id="k-spark" preserveAspectRatio="none"></svg>
+    </article>
+    <article class="card c3 kpi">
+      <div class="head"><div class="title"><span class="ico"><svg><use href="#i-monitor"/></svg></span><div><h2>Sessões abertas agora</h2><p class="sub">Não revogadas e não vencidas</p></div></div><i class="src"></i></div>
+      <div class="big">213<small>em 131 pessoas</small></div>
+      <div class="devices" title="Computador 78%, celular 22%"><b style="flex:78;background:linear-gradient(90deg,var(--grad-a),var(--primary))"></b><b style="flex:22;background:var(--grad-b)"></b></div>
+      <div class="foot" style="padding-top:8px">Computador 78% e celular 22%</div>
+    </article>
+    <article class="card c3 kpi">
+      <div class="head"><div class="title"><span class="ico"><svg><use href="#i-gauge"/></svg></span><div><h2>Ativação</h2><p class="sub">Entraram pelo menos uma vez</p></div></div><i class="src"></i></div>
+      <div class="gauge">
+        <svg viewBox="0 0 120 66" aria-hidden="true">
+          <defs><linearGradient id="gauge-g" x1="0" x2="1"><stop offset="0" stop-color="var(--grad-a)"/><stop offset="1" stop-color="var(--grad-b)"/></linearGradient></defs>
+          <path d="M10 60 A50 50 0 0 1 110 60" fill="none" stroke="var(--raised)" stroke-width="10" stroke-linecap="round"/>
+          <path d="M10 60 A50 50 0 0 1 110 60" fill="none" stroke="url(#gauge-g)" stroke-width="10" stroke-linecap="round" pathLength="100" stroke-dasharray="87 100" class="line-glow"/>
+        </svg>
+        <div><div class="big" style="margin:0">87%</div><div class="foot" style="padding:4px 0 0">21 nunca entraram</div></div>
+      </div>
+    </article>
+
+    <!-- Novos usuários no hub -->
+    <article class="card c8">
+      <div class="head">
+        <div class="title"><span class="ico"><svg><use href="#i-user-plus"/></svg></span><div><h2>Novos usuários no hub</h2><p class="sub">Contas criadas por período</p></div></div>
+        <div style="display:flex;gap:14px;align-items:start"><div style="text-align:right"><div style="font-size:22px;font-weight:700" id="hub-total">+23</div><div class="delta up">+4 vs anterior</div></div><i class="src"></i></div>
+      </div>
+      <svg class="chart" id="hub-chart"></svg>
+    </article>
+
+    <!-- Usuários por app -->
+    <article class="card c4">
+      <div class="head"><div class="title"><span class="ico"><svg><use href="#i-grid"/></svg></span><div><h2>Usuários por aplicativo</h2><p class="sub">Quem tem acesso hoje</p></div></div><i class="src"></i></div>
+      <ul class="hbars" id="per-app"></ul>
+      <div class="foot">17 usuários ainda sem nenhum aplicativo</div>
+    </article>
+
+    <!-- Radar de uso -->
+    <article class="card c4 r2">
+      <div class="head">
+        <div class="title"><span class="ico"><svg><use href="#i-radar"/></svg></span><div><h2>Uso por aplicativo</h2><p class="sub">Longe do centro, mais acessos</p></div></div>
+        <div style="display:flex;gap:10px;align-items:start">
+          <div class="seg sm" role="group" aria-label="Medida" id="radar-metric"><button aria-pressed="true" data-m="opens">Aberturas</button><button aria-pressed="false" data-m="clicks">Cliques</button></div>
+          <i class="src new"></i>
+        </div>
+      </div>
+      <svg class="radar" id="radar" viewBox="0 0 440 345" role="img" aria-label="Radar de uso por aplicativo"></svg>
+      <div class="radar-key"><span><i></i>Este período</span><span><i class="dash"></i>Período anterior</span></div>
+      <table class="apps-table">
+        <thead><tr><th>Aplicativo</th><th>Aberturas</th><th>Cliques</th><th>Conversão</th></tr></thead>
+        <tbody id="apps-rows"></tbody>
+      </table>
+    </article>
+
+    <!-- Inclusões em apps -->
+    <article class="card c8">
+      <div class="head">
+        <div class="title"><span class="ico"><svg><use href="#i-key"/></svg></span><div><h2>Inclusões em aplicativos</h2><p class="sub">Acessos concedidos por período, por aplicativo</p></div></div>
+        <div style="display:flex;gap:14px;align-items:start"><div style="text-align:right"><div style="font-size:22px;font-weight:700" id="inc-total">+64</div><div class="delta up">+12 vs anterior</div></div><i class="src"></i></div>
+      </div>
+      <svg class="chart" id="inc-chart"></svg>
+      <div class="legend" id="inc-legend"></div>
+    </article>
+
+    <!-- Heatmap -->
+    <article class="card c8">
+      <div class="head">
+        <div class="title"><span class="ico"><svg><use href="#i-clock"/></svg></span><div><h2>Quando a equipe entra</h2><p class="sub">Logins por dia da semana e hora</p></div></div>
+        <div style="display:flex;gap:14px;align-items:start">
+          <div class="scale">Menos <i style="background:rgba(var(--heat),.12)"></i><i style="background:rgba(var(--heat),.4)"></i><i style="background:rgba(var(--heat),.7)"></i><i style="background:rgba(var(--heat),1)"></i> Mais</div>
+          <i class="src"></i>
+        </div>
+      </div>
+      <div class="heat" id="heat"></div>
+      <div class="foot">Pico às terças, das 8h às 9h</div>
+    </article>
+
+    <!-- Rankings -->
+    <article class="card c4">
+      <div class="head">
+        <div class="title"><span class="ico"><svg><use href="#i-chart"/></svg></span><div><h2>Logins por usuário</h2><p class="sub" data-plabel>Nos últimos 30 dias</p></div></div>
+        <div class="seg sm" role="group" aria-label="Ordem" data-rank="logins"><button aria-pressed="true" data-o="desc">Mais</button><button aria-pressed="false" data-o="asc">Menos</button></div>
+      </div>
+      <ul class="rank" id="rank-logins"></ul>
+      <div class="foot"><a href="#" style="color:var(--primary);font-weight:600;text-decoration:none">Ver todos os 162</a></div>
+    </article>
+
+    <article class="card c4">
+      <div class="head">
+        <div class="title"><span class="ico"><svg><use href="#i-layers"/></svg></span><div><h2>Sessões por usuário</h2><p class="sub">Abertas agora, por pessoa</p></div></div>
+        <div class="seg sm" role="group" aria-label="Ordem" data-rank="sessions"><button aria-pressed="true" data-o="desc">Mais</button><button aria-pressed="false" data-o="asc">Menos</button></div>
+      </div>
+      <ul class="rank" id="rank-sessions"></ul>
+      <div class="foot">Muitas sessões abertas pode ser conta compartilhada</div>
+    </article>
+
+    <article class="card c4">
+      <div class="head"><div class="title"><span class="ico"><svg><use href="#i-alert"/></svg></span><div><h2>Contas que pedem atenção</h2><p class="sub">Para revisar acessos</p></div></div><i class="src"></i></div>
+      <ul class="health">
+        <li class="warn"><strong>Sem login há mais de 30 dias</strong><b>19</b><span><a href="#">Revisar contas</a></span></li>
+        <li class="bad"><strong>Bloqueadas por senha errada</strong><b>2</b><span><a href="#">Ver quem</a></span></li>
+        <li><strong>Sem nenhum aplicativo</strong><b>17</b><span><a href="#">Conceder acesso</a></span></li>
+        <li><strong>Desativadas</strong><b>14</b><span><a href="#">Ver lista</a></span></li>
+      </ul>
+    </article>
+  </section>
+
+  <div class="note">
+    <span><i class="src"></i> Já existe no banco</span>
+    <span><i class="src new"></i> Precisa registrar aberturas e cliques (etapa 2)</span>
+    <span>Nomes e números fictícios</span>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+// Dados fictícios com semente fixa, para o mockup ficar estável entre recargas.
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (n) => n.toLocaleString('pt-BR');
+const $ = (id) => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+
+const APPS = [
+  { name: 'Gêmeo Digital', users: 118, opens: 1460, clicks: 1712, c: '--a1' },
+  { name: 'Boletins de Sondagem', users: 96, opens: 930, clicks: 1104, c: '--a2' },
+  { name: 'Diário de Obra', users: 71, opens: 610, clicks: 798, c: '--a3' },
+  { name: 'Medições', users: 44, opens: 270, clicks: 402, c: '--a4' },
+  { name: 'Biblioteca Técnica', users: 38, opens: 112, clicks: 231, c: '--a5' },
+  { name: 'App Demo', users: 6, opens: 30, clicks: 41, c: '--a6' },
+];
+// Ordem em volta do radar: nomes longos no topo e embaixo (rótulo centralizado), curtos nas laterais.
+const RADAR_ORDER = [1, 0, 3, 4, 5, 2];
+
+const PEOPLE = ['Ana Ribeiro','Bruno Takeda','Carla Mendes','Diego Farias','Elisa Prado','Fábio Nunes','Gabriela Lins','Hugo Barros','Isabela Couto','João Vasconcelos','Karina Dias','Lucas Moreira','Marina Teles','Nelson Aguiar','Otávio Reis','Paula Siqueira']
+  .map((n, i) => ({ n, logins: [142,118,97,90,77,64,58,41,33,21,12,7,3,1,0,0][i], sessions: [9,3,7,2,5,1,2,1,4,1,1,1,1,1,0,0][i], role: i % 5 === 0 ? 'Admin' : 'Usuário' }));
+
+const PERIODS = {
+  7:   { label: 'Nos últimos 7 dias', n: 7, x: (i) => ['qui','sex','sáb','dom','seg','ter','qua'][i] },
+  30:  { label: 'Nos últimos 30 dias', n: 30, x: (i) => (i % 5 === 0 ? `${(i + 14) % 30 + 1}/10` : '') },
+  90:  { label: 'Nos últimos 90 dias', n: 13, x: (i) => (i % 2 === 0 ? `sem ${i + 1}` : '') },
+  365: { label: 'Nos últimos 12 meses', n: 12, x: (i) => ['dez','jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov'][i] },
+};
+let period = 30, metric = 'opens', firstRadar = true;
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent && parent.appendChild(e);
+  return e;
+}
+
+// Degradê 2 do hub, definido dentro de cada SVG (ids não atravessam SVGs de forma confiável)
+function gradient(svg, id, vertical) {
+  const defs = el('defs', {}, svg);
+  const g = el('linearGradient', vertical ? { id, x1: 0, y1: 1, x2: 0, y2: 0 } : { id, x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+  el('stop', { offset: 0, 'stop-color': css('--grad-a') }, g);
+  el('stop', { offset: 1, 'stop-color': css('--grad-b') }, g);
+  return defs;
+}
+
+const tip = $('tip');
+function hover(node, text) {
+  node.addEventListener('mousemove', (e) => { tip.textContent = typeof text === 'function' ? text() : text; tip.style.opacity = 1; tip.style.left = e.clientX + 12 + 'px'; tip.style.top = e.clientY - 34 + 'px'; });
+  node.addEventListener('mouseleave', () => (tip.style.opacity = 0));
+}
+
+// Barras verticais (simples ou empilhadas) com grade e rótulos
+function barChart(svg, series, colors, labelFor) {
+  svg.innerHTML = '';
+  const W = svg.clientWidth, H = svg.clientHeight, padL = 28, padB = 20, top = 8;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  if (series.length === 1) gradient(svg, svg.id + '-g', true);
+  const n = series[0].length;
+  const totals = series[0].map((_, i) => series.reduce((s, row) => s + row[i], 0));
+  const max = Math.ceil(Math.max(...totals) / 4) * 4 || 4;
+  for (let g = 0; g <= 4; g++) {
+    const y = top + (H - padB - top) * (1 - g / 4);
+    el('line', { x1: padL, x2: W, y1: y, y2: y, stroke: css('--divider'), 'stroke-dasharray': g ? '3 4' : '' }, svg);
+    el('text', { x: padL - 6, y: y + 4, 'text-anchor': 'end' }, svg).textContent = Math.round(max * g / 4);
+  }
+  const slot = (W - padL) / n, bw = Math.max(4, Math.min(28, slot * 0.62));
+  for (let i = 0; i < n; i++) {
+    let y = H - padB;
+    const x = padL + slot * i + (slot - bw) / 2;
+    series.forEach((row, s) => {
+      const h = (row[i] / max) * (H - padB - top);
+      if (h <= 0) return;
+      const fill = series.length > 1 ? css(colors[s]) : `url(#${svg.id}-g)`;
+      const r = el('rect', { x, y: y - h, width: bw, height: Math.max(h - 1.5, 1), rx: Math.min(4, bw / 3), fill }, svg);
+      hover(r, series.length > 1 ? `${APPS[s].name}: ${row[i]}` : `${row[i]} novos usuários`);
+      y -= h;
+    });
+    const t = labelFor(i);
+    if (t) el('text', { x: x + bw / 2, y: H - 4, 'text-anchor': 'middle' }, svg).textContent = t;
+  }
+}
+
+function sparkline(svg, data) {
+  svg.innerHTML = '';
+  const W = svg.clientWidth, H = svg.clientHeight, max = Math.max(...data), min = Math.min(...data);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const defs = gradient(svg, 'spark-g');
+  const fade = el('linearGradient', { id: 'spark-fill', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  el('stop', { offset: 0, 'stop-color': css('--grad-b'), 'stop-opacity': 0.25 }, fade);
+  el('stop', { offset: 1, 'stop-color': css('--grad-a'), 'stop-opacity': 0 }, fade);
+  const pts = data.map((v, i) => [(i / (data.length - 1)) * W, H - 4 - ((v - min) / (max - min || 1)) * (H - 8)]);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  el('path', { d: `${d} L${W} ${H} L0 ${H} Z`, fill: 'url(#spark-fill)' }, svg);
+  el('path', { d, fill: 'none', stroke: 'url(#spark-g)', 'stroke-width': 2, 'stroke-linejoin': 'round', class: 'line-glow' }, svg);
+  const last = pts[pts.length - 1];
+  el('circle', { cx: last[0], cy: last[1], r: 3.5, fill: css('--grad-b') }, svg);
+}
+
+// Curva fechada suave passando pelos pontos (Catmull-Rom convertido em Bézier cúbica)
+function closedCurve(pts) {
+  const n = pts.length, p = (i) => pts[(i + n) % n];
+  let d = `M${p(0)[0].toFixed(1)} ${p(0)[1].toFixed(1)}`;
+  for (let i = 0; i < n; i++) {
+    const [p0, p1, p2, p3] = [p(i - 1), p(i), p(i + 1), p(i + 2)];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 4.5, p1[1] + (p2[1] - p0[1]) / 4.5];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 4.5, p2[1] - (p3[1] - p1[1]) / 4.5];
+    d += ` C${c1.map((v) => v.toFixed(1))} ${c2.map((v) => v.toFixed(1))} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d + 'Z';
+}
+
+function renderRadar(scale) {
+  const svg = $('radar');
+  svg.innerHTML = '';
+  const cx = 220, cy = 172, R = 120, r0 = 24;
+  const apps = RADAR_ORDER.map((i) => APPS[i]);
+  const val = (a) => Math.round(a[metric] * scale);
+  seed = 11;
+  const prev = apps.map((a) => Math.round(val(a) * (0.7 + rnd() * 0.45)));
+  const max = Math.max(...apps.map(val), ...prev);
+  // Raiz quadrada: apps pequenos ainda saem do centro, sem esconder a diferença.
+  const rad = (v) => r0 + (R - r0) * Math.sqrt(v / max);
+  const ang = (i) => (-90 + i * 360 / apps.length) * Math.PI / 180;
+  const at = (i, r) => [cx + r * Math.cos(ang(i)), cy + r * Math.sin(ang(i))];
+
+  const defs = gradient(svg, 'radar-stroke');
+  defs.firstChild.setAttribute('x2', 1); defs.firstChild.setAttribute('y2', 1);
+  const rg = el('radialGradient', { id: 'radar-fill' }, defs);
+  el('stop', { offset: 0, 'stop-color': css('--grad-a'), 'stop-opacity': 0.02 }, rg);
+  el('stop', { offset: 1, 'stop-color': css('--grad-b'), 'stop-opacity': 0.16 }, rg);
+
+  [0.25, 0.5, 0.75, 1].forEach((k) => el('circle', { cx, cy, r: r0 + (R - r0) * k, class: 'ring' }, svg));
+  apps.forEach((_, i) => { const [x1, y1] = at(i, r0), [x2, y2] = at(i, R + 6); el('line', { x1, y1, x2, y2, class: 'spoke' }, svg); });
+
+  el('path', { d: closedCurve(prev.map((v, i) => at(i, rad(v)))), class: 'prev' }, svg);
+  const curve = el('path', { d: closedCurve(apps.map((a, i) => at(i, rad(val(a))))), class: 'curve line-glow' }, svg);
+  if (firstRadar) {
+    const len = curve.getTotalLength();
+    curve.style.setProperty('--len', len);
+    curve.classList.add('draw');
+    firstRadar = false;
+  }
+
+  el('circle', { cx, cy, r: r0 - 4, class: 'core' }, svg);
+  const box = el('g', { transform: `translate(${cx - 9} ${cy - 9}) scale(.75)`, class: 'core-ico' }, svg);
+  el('path', { d: 'M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z' }, box);
+  el('path', { d: 'm3.3 7 8.7 5 8.7-5M12 22V12' }, box);
+
+  const unit = metric === 'opens' ? 'aberturas' : 'cliques';
+  apps.forEach((a, i) => {
+    const v = val(a), [x, y] = at(i, rad(v));
+    const dot = el('circle', { cx: x, cy: y, r: 4.5, class: 'vtx' }, svg);
+    const diff = Math.round((v / prev[i] - 1) * 100);
+    hover(dot, `${a.name}: ${fmt(v)} ${unit} (${diff >= 0 ? '+' : ''}${diff}% vs anterior)`);
+    const row = document.querySelector(`#apps-rows tr[data-app="${a.name}"]`);
+    dot.addEventListener('mouseenter', () => row && row.classList.add('hl'));
+    dot.addEventListener('mouseleave', () => row && row.classList.remove('hl'));
+
+    const c = Math.cos(ang(i)), s = Math.sin(ang(i));
+    const [lx, ly] = at(i, R + 12);
+    const anchor = Math.abs(c) < 0.2 ? 'middle' : c > 0 ? 'start' : 'end';
+    const dy = s < -0.9 ? -14 : s > 0.9 ? 12 : -2;
+    const t = el('text', { x: lx, y: ly + dy, 'text-anchor': anchor, class: 'lbl-name' }, svg);
+    t.textContent = a.name;
+    el('text', { x: lx, y: ly + dy + 14, 'text-anchor': anchor, class: 'lbl-val' }, svg).textContent = `${fmt(v)} ${unit}`;
+  });
+}
+
+function renderAppsTable(scale) {
+  $('apps-rows').innerHTML = APPS.map((a) => {
+    const o = Math.round(a.opens * scale), c = Math.round(a.clicks * scale);
+    return `<tr data-app="${a.name}"><td><i style="background:var(${a.c})"></i>${a.name}</td><td>${fmt(o)}</td><td>${fmt(c)}</td><td>${Math.round(o / c * 100)}%</td></tr>`;
+  }).join('');
+}
+
+function renderPeriod() {
+  seed = period;
+  const p = PERIODS[period];
+  document.querySelectorAll('[data-plabel]').forEach((e) => (e.textContent = p.label));
+  const scale = { 7: 0.25, 30: 1, 90: 0.8, 365: 2.4 }[period];
+
+  const hub = Array.from({ length: p.n }, () => Math.round(rnd() * 1.3 * scale + (rnd() > 0.88 ? 2 : 0)));
+  $('hub-total').textContent = '+' + hub.reduce((a, b) => a + b, 0);
+  barChart($('hub-chart'), [hub], ['--primary'], p.x);
+
+  const inc = APPS.slice(0, 5).map((a, s) => Array.from({ length: p.n }, () => Math.round(rnd() * (5 - s) * scale * 0.45)));
+  $('inc-total').textContent = '+' + inc.flat().reduce((a, b) => a + b, 0);
+  barChart($('inc-chart'), inc, APPS.map((a) => a.c), p.x);
+
+  const logins = Array.from({ length: 20 }, (_, i) => 30 + i * 1.2 + rnd() * 18);
+  $('k-logins').firstChild.textContent = fmt({ 7: 301, 30: 1284, 90: 3720, 365: 14210 }[period]);
+  sparkline($('k-spark'), logins);
+
+  renderAppsTable(scale);
+  renderRadar(scale);
+}
+
+function renderStatic() {
+  const maxU = 162;
+  $('per-app').innerHTML = APPS.map((a) => `
+    <li><span class="name"><i style="background:var(${a.c})"></i>${a.name}</span><span class="n">${a.users} <small>${Math.round(a.users / maxU * 100)}%</small></span>
+    <span class="track"><b style="width:${a.users / maxU * 100}%;background:var(${a.c})"></b></span></li>`).join('');
+
+  $('inc-legend').innerHTML = APPS.slice(0, 5).map((a) => `<span><i style="background:var(${a.c})"></i>${a.name}</span>`).join('');
+
+  $('k-users').innerHTML = [4,6,5,9,7,8,12,10,9,14,11,16].map((v, i) => `<i class="${i === 11 ? 'on' : ''}" style="height:${v / 16 * 100}%"></i>`).join('');
+
+  seed = 3;
+  const days = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  let html = '';
+  days.forEach((d, di) => {
+    html += `<span>${d}</span>`;
+    for (let h = 0; h < 24; h++) {
+      const work = di < 5 && h >= 7 && h <= 18;
+      let v = work ? 0.35 + rnd() * 0.5 : rnd() * 0.08;
+      if (work && (h === 8 || h === 13)) v += 0.2;
+      if (di === 1 && h === 8) v = 1;
+      v = Math.min(v, 1);
+      html += `<i style="background:rgba(var(--heat),${Math.max(v, 0.05).toFixed(2)})" data-t="${d} ${h}h: ${Math.round(v * 62)} logins"></i>`;
+    }
+  });
+  html += '<span></span>' + Array.from({ length: 24 }, (_, h) => `<span class="hx">${h % 6 === 0 ? h + 'h' : ''}</span>`).join('');
+  $('heat').innerHTML = html;
+  $('heat').querySelectorAll('i').forEach((c) => hover(c, c.dataset.t));
+}
+
+function renderRank(id, key, order) {
+  const list = [...PEOPLE].sort((a, b) => (order === 'desc' ? b[key] - a[key] : a[key] - b[key])).slice(0, 6);
+  const max = Math.max(...PEOPLE.map((p) => p[key]));
+  $(id).innerHTML = list.map((p) => {
+    const ini = p.n.split(' ').map((w) => w[0]).join('');
+    const label = p[key] === 0 ? (key === 'logins' ? 'nunca' : '0') : p[key];
+    return `<li><span class="av">${ini}</span><span class="who"><b>${p.n}</b><span>${p.role}</span></span>
+      <span class="mini"><b style="width:${p[key] / max * 100}%"></b></span><span class="n ${p[key] === 0 ? 'zero' : ''}">${label}</span></li>`;
+  }).join('');
+}
+
+function segmented(group, onPick) {
+  group.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    group.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    onPick(b);
+  });
+}
+
+document.querySelectorAll('[data-rank]').forEach((g) => {
+  const key = g.dataset.rank, id = 'rank-' + key;
+  segmented(g, (b) => renderRank(id, key, b.dataset.o));
+  renderRank(id, key, 'desc');
+});
+segmented($('period'), (b) => { period = +b.dataset.p; renderPeriod(); });
+segmented($('radar-metric'), (b) => { metric = b.dataset.m; renderPeriod(); });
+
+$('theme').addEventListener('click', () => {
+  const dark = document.documentElement.classList.toggle('dark');
+  $('theme').textContent = dark ? 'Tema claro' : 'Tema escuro';
+  renderPeriod();
+});
+
+addEventListener('resize', renderPeriod);
+renderStatic();
+renderPeriod();
+</script>
+</body>
+</html>
