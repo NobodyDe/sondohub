@@ -10,3 +10,4 @@ allowBuilds:
   prisma: true
   argon2: true
   sharp: true
+  protobufjs: false
