@@ -31,6 +31,13 @@ model User {
   events   AppEvent[]
   passwordResetCode PasswordResetCode?
   apiKeys  ApiKey[]
+  assistentePermissao AssistentePermissao?
+  assistentePreferencias AssistentePreferencias?
+  assistenteChave AssistenteChaveUsuario?
+  assistenteRegras AssistenteRegra[]
+  assistenteMemorias AssistenteMemoria[]
+  assistentePerguntas AssistentePergunta[]
+  assistenteAuditoria AssistenteAuditoria[]
 
   @@map("users")
 }
@@ -142,4 +149,121 @@ enum UserRole {
   MASTER
   ADMIN
   USER
+}
+
+// ── Assistente de IA (voz e chat). Tabelas próprias; nenhuma tabela de negócio é alterada. ──
+
+/// Linha única (id = 1): a chave do Gemini da empresa, criptografada pela aplicação (AES-256-GCM). Nunca volta à API em claro.
+model AssistenteConfig {
+  id         Int      @id @default(1) @db.SmallInt
+  apiKeyEnc  String?  @map("api_key_enc")
+  updatedAt  DateTime @default(now()) @map("updated_at")
+  updatedBy  String?  @map("updated_by") @db.Uuid
+
+  @@map("assistente_config")
+}
+
+/// Chave do Gemini própria do usuário (vale no lugar da global).
+model AssistenteChaveUsuario {
+  userId    String   @id @map("user_id") @db.Uuid
+  apiKeyEnc String   @map("api_key_enc")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("assistente_chaves_usuario")
+}
+
+/// Preferências de cada usuário.
+model AssistentePreferencias {
+  userId      String   @id @map("user_id") @db.Uuid
+  habilitado  Boolean  @default(false)
+  voz         String   @default("Charon") // 'Charon' (masculina) | 'Kore' (feminina)
+  internet    Boolean  @default(false)
+  nome        String   @default("") // nome do assistente; vazio = ele pergunta
+  apelido     String   @default("") // como chamar a pessoa; vazio = primeiro nome
+  modoMic     String   @default("aberto") @map("modo_mic") // 'aberto' | 'apertar'
+  chatTexto   Boolean  @default(true) @map("chat_texto")
+  preferencia String   @default("voz") // 'voz' | 'texto'
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("assistente_usuario")
+}
+
+/// O Master libera o assistente de cada pessoa. Tabela própria: `users` não leva coluna nova.
+model AssistentePermissao {
+  userId     String   @id @map("user_id") @db.Uuid
+  autorizado Boolean  @default(false)
+  updatedBy  String?  @map("updated_by") @db.Uuid
+  updatedAt  DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("assistente_permissoes")
+}
+
+/// userId nulo = regra da empresa (Master); senão, regra pessoal.
+model AssistenteRegra {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  nome      String
+  texto     String
+  ativo     Boolean  @default(true)
+  bloqueia  Json     @default("[]") // nomes de ferramentas que o servidor recusa
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+  updatedBy String?  @map("updated_by") @db.Uuid
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("assistente_regras")
+}
+
+model AssistenteMemoria {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  texto     String
+  origem    String   @default("usuario") // 'usuario' | 'assistente'
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("assistente_memorias")
+}
+
+/// Atalhos do chat.
+model AssistentePergunta {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  texto     String
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("assistente_perguntas")
+}
+
+/// Chamadas de ferramenta (retenção de 90 dias, limpeza na consulta).
+model AssistenteAuditoria {
+  id         BigInt   @id @default(autoincrement())
+  userId     String   @map("user_id") @db.Uuid
+  ferramenta String
+  argumentos String?
+  resultado  String?
+  bloqueada  Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt(sort: Desc)])
+  @@map("assistente_auditoria")
 }

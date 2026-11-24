@@ -18,6 +18,10 @@ const envSchema = z.object({
   SMTP_USER: z.string().min(1),
   SMTP_PASS: z.string().min(1),
   SMTP_FROM: z.string().min(1),
+  // Assistente de IA: sem o segredo o assistente responde 503 e o resto da API sobe normalmente.
+  ASSISTENTE_CHAVE_SECRETA: z.string().min(32).optional(),
+  GEMINI_LIVE_MODEL: z.string().min(1).default('models/gemini-3.1-flash-live-preview'),
+  GEMINI_SEARCH_MODEL: z.string().min(1).default('gemini-3.8-flash'),
 });
 
 export const env = envSchema.parse(process.env);

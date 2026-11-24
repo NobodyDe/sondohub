@@ -36,7 +36,7 @@ export class ApiError extends Error {
 }
 
 // O hub fala com a própria API no mesmo origin (/api), então o cookie de sessão vai sozinho.
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
     ...init,
     headers:

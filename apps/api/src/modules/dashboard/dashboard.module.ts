@@ -8,5 +8,6 @@ import { DashboardService } from './dashboard.service.js';
   imports: [SessionsModule], // o SessionGuard precisa do SessionsService.
   controllers: [AdminDashboardController],
   providers: [DashboardRepository, DashboardService],
+  exports: [DashboardService], // o assistente consulta o mesmo painel do Master.
 })
 export class DashboardModule {}
