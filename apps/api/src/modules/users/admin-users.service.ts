@@ -15,9 +15,14 @@ import type {
 } from '@sondohub/contracts';
 import { AppsRepository } from '../apps/apps.repository.js';
 import { GEMEO_SLUG, GemeoClient } from '../gemeo/gemeo-client.js';
+import {
+  EXPERIENCE_SLUG,
+  ExperienceClient,
+} from '../experience/experience-client.js';
 import { UsersRepository } from './users.repository.js';
 
-// Liberar: Gêmeo ANTES do banco. Se ele falhar, nada foi salvo e o Master só repete a ação;
+// Gêmeo e Experience seguem a mesma regra.
+// Liberar: app ANTES do banco. Se ele falhar, nada foi salvo e o Master só repete a ação;
 // na ordem inversa, o hub liberaria alguém que o Gêmeo não conhece.
 // Tirar: banco ANTES do Gêmeo. Revogar acesso não pode depender do Gêmeo estar no ar.
 // Nos dois casos, o pior que sobra é uma linha a mais no Gêmeo, e ela não deixa ninguém entrar.
@@ -27,6 +32,7 @@ export class AdminUsersService {
     private readonly users: UsersRepository,
     private readonly apps: AppsRepository,
     private readonly gemeo: GemeoClient,
+    private readonly experience: ExperienceClient,
   ) {}
 
   async getDetail(id: string): Promise<AdminUserDetail> {
@@ -48,6 +54,9 @@ export class AdminUsersService {
     const id = randomUUID(); // gerado aqui, e não no banco, porque o Gêmeo precisa dele antes do insert.
     const gemeoGrant = apps.find((app) => app.slug === GEMEO_SLUG);
     if (gemeoGrant) await this.gemeo.upsertUser(id, gemeoGrant.level);
+    const experienceGrant = apps.find((app) => app.slug === EXPERIENCE_SLUG);
+    if (experienceGrant)
+      await this.experience.upsertUser(id, data, experienceGrant.level);
 
     await this.users.create({ ...data, id, passwordHash }, access);
     return this.getDetail(id);
@@ -69,10 +78,12 @@ export class AdminUsersService {
     slug: string,
     level: number,
   ): Promise<AdminUserDetail> {
-    await this.getDetail(id); // sem isso, um id inexistente estoura a chave estrangeira (500).
+    const user = await this.getDetail(id); // sem isso, um id inexistente estoura a chave estrangeira (500).
     const app = await this.findApp(slug);
     assertLevelExists(app.levels as AppLevel[], level);
     if (slug === GEMEO_SLUG) await this.gemeo.upsertUser(id, level);
+    if (slug === EXPERIENCE_SLUG)
+      await this.experience.upsertUser(id, user, level);
 
     await this.users.upsertAccess(id, app.id, level);
     return this.getDetail(id);
@@ -82,6 +93,7 @@ export class AdminUsersService {
     const app = await this.findApp(slug);
     await this.users.deleteAccess(id, app.id);
     if (slug === GEMEO_SLUG) await this.gemeo.deleteUser(id);
+    if (slug === EXPERIENCE_SLUG) await this.experience.deactivateUser(id);
     return this.getDetail(id); // aqui o 404 do usuário sai de graça.
   }
 
@@ -89,7 +101,9 @@ export class AdminUsersService {
     assertNotSelf(actorId, id);
     const user = await this.getDetail(id);
     await this.users.delete(id);
-    if (hasGemeoAccess(user)) await this.gemeo.deleteUser(id);
+    if (hasAccess(user, GEMEO_SLUG)) await this.gemeo.deleteUser(id);
+    if (hasAccess(user, EXPERIENCE_SLUG))
+      await this.experience.deactivateUser(id);
   }
 
   private async findApp(slug: string) {
@@ -116,8 +130,8 @@ function assertLevelExists(levels: AppLevel[], level: number) {
     throw new BadRequestException('Este app não tem esse nível.');
 }
 
-function hasGemeoAccess(user: AdminUserDetail): boolean {
-  return user.apps.some((app) => app.slug === GEMEO_SLUG && app.hasAccess);
+function hasAccess(user: AdminUserDetail, slug: string): boolean {
+  return user.apps.some((app) => app.slug === slug && app.hasAccess);
 }
 
 /** O Master não mexe no próprio cargo, status nem conta por aqui: evita se trancar fora do painel. */

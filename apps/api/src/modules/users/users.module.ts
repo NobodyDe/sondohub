@@ -5,9 +5,10 @@ import { UsersRepository } from './users.repository.js';
 import { AdminUsersService } from './admin-users.service.js';
 import { AppsModule } from '../apps/apps.module.js';
 import { GemeoModule } from '../gemeo/gemeo.module.js';
+import { ExperienceModule } from '../experience/experience.module.js';
 
 @Module({
-  imports: [SessionsModule, AppsModule, GemeoModule],
+  imports: [SessionsModule, AppsModule, GemeoModule, ExperienceModule],
   controllers: [AdminUsersController],
   providers: [UsersRepository, AdminUsersService],
   exports: [UsersRepository],

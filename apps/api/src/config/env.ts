@@ -11,6 +11,8 @@ const envSchema = z.object({
   AZURE_STORAGE_CONNECTION_STRING: z.string().min(1),
   AZURE_STORAGE_CONTAINER: z.string().min(1),
   GDS_APY_KEY: z.string().min(1),
+  EXPERIENCE_API_URL: z.url(),
+  EXPERIENCE_API_KEY: z.string().min(1),
   SMTP_HOST: z.string().min(1),
   SMTP_PORT: z.coerce.number().int().positive(),
   SMTP_USER: z.string().min(1),
