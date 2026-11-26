@@ -1,12 +1,15 @@
-/** O que o navegador executa. O servidor só resolve nomes em rotas/slugs; quem age é o navegador. */
+import type { AssistentePropostaResumo } from '@sondohub/contracts';
+
+/** O que o navegador executa. O servidor só resolve nomes em rotas/slugs ou propostas; quem age é o navegador. */
 export type AcaoCliente = {
   /** Preenchido pela sessão: o navegador devolve `acao_resultado` com este id. */
   id?: string;
-  tipo: 'navegar' | 'abrir_app' | 'voltar';
+  tipo: 'navegar' | 'abrir_app' | 'voltar' | 'confirmar_escrita';
   descricao: string;
   rota?: string;
   slug?: string;
   url?: string;
+  proposta?: AssistentePropostaResumo;
 };
 
 type Tela = { rota: string; nome: string; master: boolean };

@@ -11,6 +11,6 @@ import { ExperienceModule } from '../experience/experience.module.js';
   imports: [SessionsModule, AppsModule, GemeoModule, ExperienceModule],
   controllers: [AdminUsersController],
   providers: [UsersRepository, AdminUsersService],
-  exports: [UsersRepository],
+  exports: [UsersRepository, AdminUsersService],
 })
 export class UsersModule {}

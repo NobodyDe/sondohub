@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { hubApi } from "@/lib/api.ts";
 import { useDebounceByKey } from "@/lib/use-debounce-by-key.ts";
 import AssistenteAutorizacaoSwitch from "../../../assistente/components/AssistenteAutorizacaoSwitch.tsx";
+import { usePublicarContextoTela } from "../../../assistente/contexto-tela/contexto-tela-store.ts";
 import AppAccessList from "../../shared/AppAccessList.tsx";
 import type { CatalogApp } from "../../shared/types.ts";
 import { grantsOf, withAppLevel } from "../../shared/user-access.ts";
@@ -34,6 +35,22 @@ export function UserDetailPage() {
   });
 
   const debounce = useDebounceByKey(DEBOUNCE_MS);
+
+  usePublicarContextoTela(
+    user
+      ? {
+          pagina: "detalhe_usuario",
+          usuarioVisto: {
+            id: user.id,
+            nome: user.name,
+            email: user.email,
+            cargo: user.role,
+            ativo: user.isActive,
+          },
+          appsLiberados: user.apps.filter((a) => a.hasAccess).map((a) => `${a.name} (nível ${a.level})`),
+        }
+      : null,
+  );
 
   const save = useMutation({
     mutationKey: userKey, // para contar quantas edições deste usuário estão em andamento.

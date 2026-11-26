@@ -15,6 +15,7 @@ import OpenSessionsCard from "../components/OpenSessionsCard.tsx";
 import SegmentedControl from "../components/SegmentedControl.tsx";
 import UserRankingCard from "../components/UserRankingCard.tsx";
 import { useDashboard } from "../use-dashboard.ts";
+import { usePublicarContextoTela } from "../../../assistente/contexto-tela/contexto-tela-store.ts";
 
 const PERIODS: { value: DashboardPeriod; label: string }[] = [
   { value: "7d", label: "7 dias" },
@@ -39,6 +40,18 @@ const NARROW = "col-span-12 xl:col-span-4";
 export function DashboardPage() {
   const [period, setPeriod] = useState<DashboardPeriod>("30d");
   const dashboard = useDashboard(period);
+
+  usePublicarContextoTela({
+    pagina: "painel_master",
+    periodoSelecionado: period,
+    ...(dashboard.data
+      ? {
+          usuariosAtivos: dashboard.data.users.active,
+          usuariosTotal: dashboard.data.users.total,
+          sessoesAbertas: dashboard.data.sessions.open,
+        }
+      : {}),
+  });
 
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6">

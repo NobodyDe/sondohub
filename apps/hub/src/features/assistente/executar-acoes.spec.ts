@@ -29,4 +29,21 @@ describe("lerAcao", () => {
     expect(lerAcao(null)).toBeNull();
     expect(lerAcao("x")).toBeNull();
   });
+
+  it("confirmar_escrita valida a proposta recebida", () => {
+    const proposta = {
+      id: "p1",
+      operacao: "liberar_app",
+      titulo: "Liberar Gêmeo Digital",
+      descricao: "Conceder acesso ao aplicativo",
+      detalhe: "Nível 2 (Administrador)",
+      expiraEm: "2026-11-26T15:00:00.000Z",
+      usuarioAlvo: { id: "u1", nome: "Maria Souza", email: "maria@sondo.com" },
+    };
+    expect(lerAcao({ id: "a2", tipo: "confirmar_escrita", descricao: "confirmar", proposta })).toMatchObject({
+      tipo: "confirmar_escrita",
+      proposta: { id: "p1", operacao: "liberar_app" },
+    });
+    expect(lerAcao({ tipo: "confirmar_escrita", proposta: { id: "p1" } })).toBeNull();
+  });
 });

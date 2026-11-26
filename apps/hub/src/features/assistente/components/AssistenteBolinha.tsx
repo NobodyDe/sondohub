@@ -3,6 +3,9 @@ import { AudioLines, Bot, GripHorizontal, Hand, Loader2, MessageSquare, Mic, Set
 import { Link, useLocation } from "react-router";
 import { cn } from "@/lib/utils.ts";
 import { assistenteApi } from "../api.ts";
+import { CardConfirmacao } from "../cards/CardConfirmacao.tsx";
+import { usePropostasCards } from "../cards/use-propostas-cards.ts";
+import { useEstadoTelaAssistente } from "../contexto-tela/contexto-tela-store.ts";
 import { useExecutarAcoes } from "../executar-acoes.ts";
 import type { ModoMic } from "../lib/mic-mode.ts";
 import { useAssistenteChat } from "../use-assistente-chat.ts";
@@ -33,7 +36,9 @@ const campoDeTexto = (alvo: EventTarget | null) => {
 /** Bolinha flutuante do Assistente de IA. Some quando está desligado, sem autorização ou sem chave. */
 export function AssistenteBolinha() {
   const { pathname } = useLocation();
-  const executarAcao = useExecutarAcoes();
+  const estadoTela = useEstadoTelaAssistente();
+  const { cards, adicionarProposta, confirmarProposta, cancelarProposta, limparCards } = usePropostasCards();
+  const executarAcao = useExecutarAcoes(adicionarProposta);
   const { data: config, refetch } = useAssistenteConfig();
   // O robô vive acima do router: sem isto, o 401 de antes do login (ou a config de outra conta) ficaria no cache.
   useEffect(() => {
@@ -92,12 +97,13 @@ export function AssistenteBolinha() {
         rota: pathname,
         titulo: document.title,
         breakpoint: window.matchMedia("(max-width: 767px)").matches ? "mobile" : "desktop",
+        ...(estadoTela ? { estado: estadoTela } : {}),
       };
       if (emSessao) enviarContexto(contexto);
       else enviarContextoChat(contexto);
     }, 300);
     return () => window.clearTimeout(t);
-  }, [emSessao, chatAberto, pathname, enviarContexto, enviarContextoChat]);
+  }, [emSessao, chatAberto, pathname, estadoTela, enviarContexto, enviarContextoChat]);
 
   useEffect(() => {
     if (!chatAberto) return;
@@ -168,9 +174,15 @@ export function AssistenteBolinha() {
           sugestoes={sugestoes}
           vozLigada={chat.vozLigada}
           falando={chat.falando}
+          cards={cards}
+          onConfirmarCard={confirmarProposta}
+          onCancelarCard={cancelarProposta}
           onVoz={chat.definirVoz}
           onEnviar={chat.enviar}
-          onNovaConversa={chat.novaConversa}
+          onNovaConversa={() => {
+            limparCards();
+            chat.novaConversa();
+          }}
           onTrocarParaVoz={abrirVoz}
           onFechar={() => setChatAberto(false)}
         />
@@ -223,6 +235,19 @@ export function AssistenteBolinha() {
           </div>
           <div className="space-y-2 p-3">
             {texto ? <p className="line-clamp-4 break-words">{texto}</p> : null}
+
+            {cards.length > 0 ? (
+              <div className="space-y-2">
+                {cards.map((item) => (
+                  <CardConfirmacao
+                    key={item.proposta.id}
+                    item={item}
+                    onConfirmar={confirmarProposta}
+                    onCancelar={cancelarProposta}
+                  />
+                ))}
+              </div>
+            ) : null}
 
             {emSessao ? (
               <>
