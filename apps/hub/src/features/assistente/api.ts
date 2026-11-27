@@ -5,6 +5,7 @@ import type {
   AssistenteMemoria,
   AssistentePergunta,
   AssistentePermissao,
+  AssistentePropostaResultado,
   AssistenteRegra,
 } from "@sondohub/contracts";
 import { request } from "../../lib/api.ts";
@@ -67,4 +68,10 @@ export const assistenteApi = {
   permissao: (userId: string) => request<AssistentePermissao>(`${base}/usuarios/${userId}/permissao`),
   salvarPermissao: (userId: string, autorizado: boolean) =>
     request<AssistentePermissao>(`${base}/usuarios/${userId}/permissao`, json("PUT", { autorizado })),
+
+  /** Confirmação visual (Human-in-the-Loop) de propostas de escrita (só Master). */
+  confirmarProposta: (propostaId: string) =>
+    request<AssistentePropostaResultado>(`${base}/propostas/${propostaId}/confirmar`, json("POST", {})),
+  cancelarProposta: (propostaId: string) =>
+    request<AssistentePropostaResultado>(`${base}/propostas/${propostaId}/cancelar`, json("POST", {})),
 };

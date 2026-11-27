@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu.tsx";
 import { useThemeStore } from "../../../stores/theme-store.ts";
@@ -19,6 +18,10 @@ export type AccountMenuProps = {
   profile: HubProfile;
   children?: ReactNode; // conteúdo do botão; sem ele, o ícone de engrenagem
 };
+
+// text-foreground vence o estilo global de <a> (azul) nos itens que são Link.
+const ITEM_CLASS =
+  "rounded-none border-t border-border py-2 text-foreground";
 
 async function logout() {
   try {
@@ -55,25 +58,21 @@ export default function AccountMenu({ profile, children }: AccountMenuProps) {
               </span>
             </div>
           </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+          <DropdownMenuItem className={ITEM_CLASS} onClick={() => setSettingsOpen(true)}>
             <Settings /> Configurações
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem render={<Link to="/perfil" />}>
+          <DropdownMenuItem className={ITEM_CLASS} render={<Link to="/perfil" />}>
             <UserRound /> Meu perfil
           </DropdownMenuItem>
           {assistantAllowed && (
-            <DropdownMenuItem render={<Link to="/assistente" />}>
+            <DropdownMenuItem className={ITEM_CLASS} render={<Link to="/assistente" />}>
               <Bot /> Assistente
             </DropdownMenuItem>
           )}
-          <DropdownMenuSeparator />
 
           <ThemeToggleItem />
-          <DropdownMenuSeparator />
 
-          <DropdownMenuItem variant="destructive" onClick={logout}>
+          <DropdownMenuItem className={ITEM_CLASS} onClick={logout}>
             <LogOut /> Sair
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -89,7 +88,7 @@ function ThemeToggleItem() {
   const isDark = theme === "dark";
 
   return (
-    <DropdownMenuItem onClick={toggleTheme}>
+    <DropdownMenuItem className={ITEM_CLASS} onClick={toggleTheme}>
       {isDark ? <Sun /> : <Moon />}
       {isDark ? "Modo claro" : "Modo escuro"}
     </DropdownMenuItem>

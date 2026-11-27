@@ -44,3 +44,26 @@ export type AssistenteAuditoriaRegistro = {
 
 export type AssistenteChaveValidacao = { valida: boolean; mensagem: string };
 export type AssistentePermissao = { autorizado: boolean };
+
+export type AssistentePropostaOperacao =
+  | "liberar_app"
+  | "remover_app"
+  | "autorizar_assistente"
+  | "alterar_cargo"
+  | "alterar_status";
+
+export type AssistentePropostaResumo = {
+  id: string;
+  operacao: AssistentePropostaOperacao;
+  titulo: string;
+  descricao: string;
+  usuarioAlvo: { id: string; nome: string; email: string };
+  detalhe: string;
+  expiraEm: string;
+};
+
+export type AssistentePropostaResultado = {
+  ok: boolean;
+  mensagem: string;
+  usuarioId?: string;
+};

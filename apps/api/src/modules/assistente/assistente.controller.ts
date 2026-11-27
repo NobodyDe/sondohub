@@ -24,6 +24,7 @@ import { SessionGuard } from '../../common/auth/session.guard.js';
 import { AssistenteRepository, type EscopoRegra } from './assistente.repository.js';
 import { lerEntradaMemoria } from './memorias.js';
 import { lerEntradaPergunta } from './perguntas.js';
+import { AssistentePropostasService } from './propostas/propostas.service.js';
 import { lerEntradaRegra } from './regras.js';
 import { assistenteAtivo, lerAlteracao, VOZES, type ConfigAssistente } from './tipos.js';
 import { validarChaveGemini } from './validar-chave.js';
@@ -67,7 +68,10 @@ const invalido = (mensagem = 'Dados inválidos.') => new BadRequestException(men
 @Controller('assistente')
 @UseGuards(SessionGuard)
 export class AssistenteController {
-  constructor(private readonly repo: AssistenteRepository) {}
+  constructor(
+    private readonly repo: AssistenteRepository,
+    private readonly propostas: AssistentePropostasService,
+  ) {}
 
   private async estado({ user }: AuthContext) {
     const [config, chavePropria, autorizado] = await Promise.all([
@@ -299,5 +303,20 @@ export class AssistenteController {
     if (typeof corpo?.autorizado !== 'boolean') throw invalido();
     await this.repo.gravarPermissao(id, corpo.autorizado, user.id);
     return { autorizado: corpo.autorizado };
+  }
+
+  /** Confirmação visual (Human-in-the-Loop) de propostas criadas pelo assistente (só Master). */
+  @Post('propostas/:id/confirmar')
+  @UseGuards(MasterGuard)
+  @HttpCode(200)
+  confirmarProposta(@CurrentAuth() { user }: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.propostas.confirmar(id, user.id);
+  }
+
+  @Post('propostas/:id/cancelar')
+  @UseGuards(MasterGuard)
+  @HttpCode(200)
+  cancelarProposta(@CurrentAuth() { user }: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.propostas.cancelar(id, user.id);
   }
 }

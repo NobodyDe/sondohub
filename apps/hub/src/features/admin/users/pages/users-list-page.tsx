@@ -11,6 +11,7 @@ import { Link, useSearchParams } from "react-router";
 import { hubApi } from "@/lib/api.ts";
 import { useDebounceByKey } from "@/lib/use-debounce-by-key.ts";
 import { cn } from "@/lib/utils.ts";
+import { usePublicarContextoTela } from "../../../assistente/contexto-tela/contexto-tela-store.ts";
 import UsersPagination from "../components/UsersPagination.tsx";
 import UsersTable from "../components/UsersTable.tsx";
 import UsersToolbar from "../components/UsersToolbar.tsx";
@@ -37,6 +38,14 @@ export function UsersListPage() {
     queryKey: [...USERS_LIST_KEY, "summary"],
     queryFn: hubApi.adminUsersSummary,
     staleTime: USERS_STALE_MS,
+  });
+
+  usePublicarContextoTela({
+    pagina: "lista_usuarios",
+    filtroAtivo: filter,
+    buscaDigitada: search || undefined,
+    paginaAtual: page.pageNumber,
+    usuariosVisiveis: page.users.slice(0, 5).map((u) => `${u.name} (${u.email})`),
   });
 
   function changeQuery(value: string) {

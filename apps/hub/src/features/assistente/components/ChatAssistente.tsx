@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, Loader2, Mic, RotateCcw, SendHorizontal, Volume2, VolumeX, X } from "lucide-react";
 import { cn } from "@/lib/utils.ts";
+import { CardConfirmacao } from "../cards/CardConfirmacao.tsx";
+import type { CardPropostaItem } from "../cards/card.types.ts";
 import type { MensagemChat } from "../use-assistente-chat.ts";
 
 type Props = {
@@ -15,6 +17,10 @@ type Props = {
   /** A resposta também é lida em voz alta. */
   vozLigada: boolean;
   falando: boolean;
+  /** Cards de confirmação visual (Human-in-the-Loop). */
+  cards?: CardPropostaItem[];
+  onConfirmarCard?: (id: string) => void;
+  onCancelarCard?: (id: string) => void;
   onVoz: (ligada: boolean) => void;
   onEnviar: (texto: string) => void;
   onNovaConversa: () => void;
@@ -38,6 +44,9 @@ export function ChatAssistente({
   sugestoes,
   vozLigada,
   falando,
+  cards = [],
+  onConfirmarCard,
+  onCancelarCard,
   onVoz,
   onEnviar,
   onNovaConversa,
@@ -50,7 +59,7 @@ export function ChatAssistente({
 
   useEffect(() => {
     fimRef.current?.scrollIntoView({ block: "end" });
-  }, [mensagens, pensando]);
+  }, [mensagens, pensando, cards]);
 
   useEffect(() => {
     campoRef.current?.focus();
@@ -152,6 +161,19 @@ export function ChatAssistente({
             </div>
           ),
         )}
+
+        {cards.length > 0 && onConfirmarCard && onCancelarCard ? (
+          <div className="space-y-2 pt-1">
+            {cards.map((item) => (
+              <CardConfirmacao
+                key={item.proposta.id}
+                item={item}
+                onConfirmar={onConfirmarCard}
+                onCancelar={onCancelarCard}
+              />
+            ))}
+          </div>
+        ) : null}
 
         {pensando ? (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">

@@ -71,7 +71,7 @@ function AppCard({ app, index, canDrag }: AppCardProps) {
     <li
       ref={ref}
       className={cn(
-        "relative flex min-h-44 flex-col gap-4 border border-border bg-sidebar p-5 transition hover:-translate-y-0.5 hover:border-line-hover",
+        "dash-card flex min-h-44 flex-col gap-4 border border-border p-5 transition hover:-translate-y-0.5 hover:border-line-hover",
         isDragging && "opacity-60",
       )}
     >

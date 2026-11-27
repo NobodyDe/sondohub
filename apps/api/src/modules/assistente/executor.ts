@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Optional } from '@nestjs/common';
 import type { SafeUser } from '../users/users.repository.js';
 import { resolverAcao, type AcaoCliente } from './acoes.js';
 import { AssistenteRepository } from './assistente.repository.js';
@@ -6,11 +6,13 @@ import { pesquisarWeb } from './busca.js';
 import { previsaoDoTempo } from './clima.js';
 import { AssistenteConsultas } from './consultas.js';
 import type { ContextoTela } from './contexto.js';
+import { AssistenteFederacaoService } from './federacao/federacao.service.js';
 import {
   FERRAMENTA_ACAO,
   FERRAMENTA_BUSCA,
   FERRAMENTA_BUSCAR_USUARIOS,
   FERRAMENTA_CLIMA,
+  FERRAMENTA_CONSULTAR_APP_FILHO,
   FERRAMENTA_DETALHE_USUARIO,
   FERRAMENTA_ESQUECER,
   FERRAMENTA_LEMBRAR,
@@ -18,11 +20,13 @@ import {
   FERRAMENTA_MEU_PERFIL,
   FERRAMENTA_MEUS_APPS,
   FERRAMENTA_PAINEL,
+  FERRAMENTA_PROPOR_ALTERACAO,
   FERRAMENTA_RESUMO_USUARIOS,
   FERRAMENTA_VER_TELA,
   NOMES_SO_MASTER,
 } from './ferramentas.js';
 import { MAX_TEXTO_MEMORIA, textoListaMemorias } from './memorias.js';
+import { AssistentePropostasService } from './propostas/propostas.service.js';
 
 export type ResultadoAck = { ok: boolean; detalhe?: string };
 
@@ -60,6 +64,8 @@ export class AssistenteExecutor {
   constructor(
     private readonly repo: AssistenteRepository,
     private readonly consultas: AssistenteConsultas,
+    @Optional() private readonly propostas?: AssistentePropostasService,
+    @Optional() private readonly federacao?: AssistenteFederacaoService,
   ) {}
 
   /** Roda uma chamada de ferramenta e devolve o texto para o modelo. Nunca lança. */
@@ -94,6 +100,13 @@ export class AssistenteExecutor {
           return await this.consultas.meusApps(user.id);
         case FERRAMENTA_MEU_PERFIL.name:
           return await this.consultas.meuPerfil(user);
+        case FERRAMENTA_CONSULTAR_APP_FILHO.name:
+          return this.federacao
+            ? await this.federacao.consultarAppFilho(user, {
+                app: texto(args, 'app'),
+                consulta: texto(args, 'consulta'),
+              })
+            : 'A consulta federada entre aplicativos não está habilitada.';
         case FERRAMENTA_PAINEL.name:
           return await this.consultas.resumoPainel(texto(args, 'periodo'));
         case FERRAMENTA_RESUMO_USUARIOS.name:
@@ -102,6 +115,20 @@ export class AssistenteExecutor {
           return await this.consultas.buscarUsuarios(texto(args, 'busca'));
         case FERRAMENTA_DETALHE_USUARIO.name:
           return await this.consultas.detalheUsuario(texto(args, 'busca'));
+        case FERRAMENTA_PROPOR_ALTERACAO.name: {
+          if (!this.propostas) return 'O módulo de propostas não está disponível.';
+          const r = await this.propostas.criarProposta(
+            user.id,
+            {
+              operacao: texto(args, 'operacao'),
+              usuario: texto(args, 'usuario'),
+              app: texto(args, 'app'),
+              valor: texto(args, 'valor'),
+            },
+            ctx.contexto?.(),
+          );
+          return await entregar(ctx, r);
+        }
         case FERRAMENTA_ACAO.name: {
           const apps = await this.consultas.appsDaPessoa(user.id);
           const r = resolverAcao(

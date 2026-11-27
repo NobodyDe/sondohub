@@ -112,7 +112,27 @@ export const FERRAMENTA_MEU_PERFIL: Ferramenta = {
   parameters: { type: Type.OBJECT, properties: {} },
 };
 
-export const FERRAMENTAS_HUB = [FERRAMENTA_MEUS_APPS, FERRAMENTA_MEU_PERFIL];
+export const FERRAMENTA_CONSULTAR_APP_FILHO: Ferramenta = {
+  name: 'consultar_app_filho',
+  description:
+    'Consulta em tempo real informações de dentro de um aplicativo filho da Sondotécnica (como SondoView, Gêmeo Digital ou Experience) ao qual a pessoa tem acesso.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      app: {
+        type: Type.STRING,
+        description: 'Nome ou slug do aplicativo (ex.: SondoView, Gêmeo Digital, Experience).',
+      },
+      consulta: {
+        type: Type.STRING,
+        description: 'Pergunta ou resumo desejado dentro daquele aplicativo (ex.: avanço das obras, eventos ativos, contratos).',
+      },
+    },
+    required: ['app', 'consulta'],
+  },
+};
+
+export const FERRAMENTAS_HUB = [FERRAMENTA_MEUS_APPS, FERRAMENTA_MEU_PERFIL, FERRAMENTA_CONSULTAR_APP_FILHO];
 
 // ── Só Master: as mesmas informações das telas /admin ───────────────────────
 
@@ -153,11 +173,43 @@ export const FERRAMENTA_DETALHE_USUARIO: Ferramenta = {
   },
 };
 
+export const FERRAMENTA_PROPOR_ALTERACAO: Ferramenta = {
+  name: 'propor_alteracao_usuario',
+  description:
+    'Prepara uma alteração administrativa em um usuário (liberar aplicativo, remover aplicativo, autorizar uso do assistente, alterar cargo ou ativar/desativar conta) e mostra um cartão de confirmação visual na tela para o Master aprovar.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      operacao: {
+        type: Type.STRING,
+        description:
+          'liberar_app (concede acesso ou troca o nível em um app), remover_app (tira acesso a um app), autorizar_assistente (liga ou desliga uso do assistente), alterar_cargo (troca para Usuário, Administrador ou Master) ou alterar_status (ativa ou desativa a conta).',
+      },
+      usuario: {
+        type: Type.STRING,
+        description:
+          'Nome ou e-mail do usuário. Se o Master estiver na ficha do usuário na tela e disser "esse usuário", "ele" ou "ela", passe "esse".',
+      },
+      app: {
+        type: Type.STRING,
+        description: 'Para liberar_app e remover_app: nome ou slug do aplicativo (ex.: Gêmeo Digital, Experience).',
+      },
+      valor: {
+        type: Type.STRING,
+        description:
+          'Para liberar_app: número ou nome do nível (ex.: 1, 2, Administrador, Usuário). Para alterar_cargo: Usuário, Administrador ou Master. Para autorizar_assistente e alterar_status: sim ou nao.',
+      },
+    },
+    required: ['operacao'],
+  },
+};
+
 export const FERRAMENTAS_MASTER = [
   FERRAMENTA_PAINEL,
   FERRAMENTA_RESUMO_USUARIOS,
   FERRAMENTA_BUSCAR_USUARIOS,
   FERRAMENTA_DETALHE_USUARIO,
+  FERRAMENTA_PROPOR_ALTERACAO,
 ];
 
 /** Nomes que só o Master pode chamar: o servidor confere, não basta esconder do catálogo. */
