@@ -108,5 +108,15 @@ describe('AssistenteFederacaoService (MCP HTTP)', () => {
       apiUrl: 'https://gds-techlab.sondotecnica.com',
       apiKey: 'chave-prod',
     });
+
+    expect(
+      resolverEndpointAppFilho('experience', {
+        EXPERIENCE_API_URL: 'http://localhost:3000',
+        EXPERIENCE_API_KEY: 'sk_exp',
+      }),
+    ).toEqual({
+      apiUrl: 'http://localhost:3000/api',
+      apiKey: 'sk_exp',
+    });
   });
 });

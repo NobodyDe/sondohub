@@ -19,11 +19,6 @@ export function resolverEndpointAppFilho(
   slug: string,
   variaveis: Record<string, string | undefined> = process.env,
 ): EndpointFederado | null {
-  const prefixo = slug.toUpperCase().replace(/[^A-Z0-9]/g, '_');
-  const urlDireta = variaveis[`${prefixo}_API_URL`]?.trim();
-  const chaveDireta = variaveis[`${prefixo}_API_KEY`]?.trim();
-  if (urlDireta && chaveDireta) return { apiUrl: urlDireta.replace(/\/+$/, ''), apiKey: chaveDireta };
-
   if (slug === 'gemeo') {
     const apiKey = variaveis.GDS_APY_KEY?.trim() || variaveis.GEMEO_API_KEY?.trim();
     const emDevLocal = Boolean(variaveis.HUB_URL?.includes('localhost'));
@@ -33,10 +28,20 @@ export function resolverEndpointAppFilho(
   }
 
   if (slug === 'experience') {
-    const apiUrl = variaveis.EXPERIENCE_API_URL?.trim()?.replace(/\/+$/, '');
     const apiKey = variaveis.EXPERIENCE_API_KEY?.trim();
-    return apiUrl && apiKey ? { apiUrl, apiKey } : null;
+    const emDevLocal = Boolean(variaveis.HUB_URL?.includes('localhost'));
+    const padraoExp = emDevLocal ? 'http://localhost:3000/api' : '';
+    const bruta = (variaveis.EXPERIENCE_API_URL?.trim() || padraoExp).replace(/\/+$/, '');
+    if (!bruta || !apiKey) return null;
+    // As rotas do api-admin-experience ficam sob /api (app.use('/api', routes)).
+    const apiUrl = bruta.endsWith('/api') ? bruta : `${bruta}/api`;
+    return { apiUrl, apiKey };
   }
+
+  const prefixo = slug.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+  const urlDireta = variaveis[`${prefixo}_API_URL`]?.trim();
+  const chaveDireta = variaveis[`${prefixo}_API_KEY`]?.trim();
+  if (urlDireta && chaveDireta) return { apiUrl: urlDireta.replace(/\/+$/, ''), apiKey: chaveDireta };
 
   return null;
 }
